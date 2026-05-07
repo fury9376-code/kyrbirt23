@@ -1,0 +1,31 @@
+kind = "web"
+previewPath = "/"
+title = "KYRBIRT"
+version = "1.0.0"
+id = "artifacts/kyrbirt"
+router = "path"
+
+[[integratedSkills]]
+name = "react-vite"
+version = "1.0.0"
+
+[[services]]
+name = "web"
+paths = [ "/" ]
+localPort = 22880
+
+[services.development]
+run = "pnpm --filter @workspace/kyrbirt run dev"
+
+[services.production]
+build = [ "pnpm", "--filter", "@workspace/kyrbirt", "run", "build" ]
+publicDir = "artifacts/kyrbirt/dist/public"
+serve = "static"
+
+[[services.production.rewrites]]
+from = "/*"
+to = "/index.html"
+
+[services.env]
+PORT = "22880"
+BASE_PATH = "/"

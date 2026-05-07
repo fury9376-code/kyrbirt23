@@ -1,0 +1,109 @@
+# =========================
+# Build / output
+# =========================
+dist
+build
+tmp
+out-tsc
+*.tsbuildinfo
+
+# =========================
+# Dependencies
+# =========================
+node_modules
+.pnpm-store
+
+# =========================
+# Replit
+# =========================
+.cache/
+.local/
+.replit
+.replit.nix
+.replitignore
+
+# =========================
+# Logs
+# =========================
+npm-debug.log
+yarn-error.log
+pnpm-debug.log*
+testem.log
+
+# =========================
+# IDEs / Editors
+# =========================
+.vscode/*
+!.vscode/settings.json
+!.vscode/tasks.json
+!.vscode/launch.json
+!.vscode/extensions.json
+
+.idea
+.project
+.classpath
+.c9/
+*.launch
+.settings/
+*.sublime-workspace
+
+# =========================
+# System files
+# =========================
+.DS_Store
+Thumbs.db
+
+# =========================
+# Cache / temp
+# =========================
+.sass-cache
+coverage
+connect.lock
+libpeerconnection.log
+typings
+
+# =========================
+# ZIP / backups
+# =========================
+*.zip
+*.rar
+*.7z
+
+# =========================
+# Local artifacts
+# =========================
+.local/
+.migration-backup/
+mockup-sandbox/
+attached_assets/
+
+# =========================
+# GitHub / Cursor
+# =========================
+.cursor/
+.github/instructions/
+
+# =========================
+# Large generated folders
+# =========================
+.local2/
+zipFile/
+# Large files
+*.zip
+.local/
+.cache/
+dist/
+build/
+coverage/
+
+# Replit artifacts
+artifacts/mockup-sandbox/dist/
+artifacts/mockup-sandbox/node_modules/
+artifacts/kyrbirt/dist/
+artifacts/kyrbirt/node_modules/
+
+# binaries
+*.exe
+*.iso
+*.tar
+*.gz
