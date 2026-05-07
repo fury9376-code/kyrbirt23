@@ -158,14 +158,14 @@ router.post("/orders/email", async (req, res) => {
   }
 });
 
-router.get("/admin/orders", requireAdminAuth, async (req, res) => {
-  try {
-    const orders = await db.select().from(ordersTable).orderBy(desc(ordersTable.createdAt));
-    return res.json(orders);
-  } catch (err) {
-    req.log.error({ err }, "Failed to fetch orders");
-    return res.status(500).json({ error: "DB error" });
+router.get("/admin/orders", async (req, res) => {
+  const configured = process.env["ADMIN_PASSWORD"]?.trim();
+  if (!configured) {
+    return res.status(503).json({ error: "ADMIN_PASSWORD not configured" });
   }
-});
+  const provided = String(req.headers["x-admin-password"] ?? "").trim();
+  if (provided !== configured) {
+    return res.status(401).json({ error: "Unauthorized" });
+  }
 
 export default router;
