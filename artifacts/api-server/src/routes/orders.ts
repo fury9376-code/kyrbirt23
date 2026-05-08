@@ -109,7 +109,7 @@ router.post("/orders/email", async (req, res) => {
     fullName: String(fullName), product: String(product), priceDisplay,
     size: String(size), color: String(color), quantity: Number(quantity) || 1,
   });
-  sendWhatsApp(String(phone), waMessage, req.log).catch((err) =>
+  await sendWhatsApp(String(phone), waMessage, req.log).catch((err) =>
     req.log.error({ err }, "WhatsApp send failed")
   );
 
