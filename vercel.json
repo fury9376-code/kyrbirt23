@@ -1,7 +1,7 @@
 {
   "framework": null,
-  "buildCommand": "pnpm install && pnpm --filter @workspace/api-server run build && pnpm --filter @workspace/kyrbirt run build",
-  "outputDirectory": "artifacts/kyrbirt/dist",
+  "buildCommand": "pnpm install && pnpm --filter @workspace/api-server run build && pnpm --filter @workspace/kyrbirt run build && cp -r artifacts/kyrbirt/dist dist",
+  "outputDirectory": "dist",
   "rewrites": [
     { "source": "/api/:path*", "destination": "/api/handler" }
   ],
