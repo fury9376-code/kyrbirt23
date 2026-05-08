@@ -431,16 +431,23 @@ function ProductsTab() {
 
   const showToast = (msg: string) => { setToast(msg); setTimeout(() => setToast(null), 2500); };
 
+  const [loadError, setLoadError] = useState<string | null>(null);
+
   const loadProducts = async () => {
     setLoading(true);
+    setLoadError(null);
     try {
       const res = await fetch("/api/products");
-      const rows: ApiProduct[] = await res.json();
+      if (!res.ok) throw new Error(`API error ${res.status}`);
+      const data = await res.json();
+      const rows: ApiProduct[] = Array.isArray(data) ? data : [];
       if (rows.length === 0 && !seeded) {
         await seedProductsIfEmpty(rows);
         setSeeded(true);
         const res2 = await fetch("/api/products");
-        const rows2: ApiProduct[] = await res2.json();
+        if (!res2.ok) throw new Error(`API error ${res2.status}`);
+        const data2 = await res2.json();
+        const rows2: ApiProduct[] = Array.isArray(data2) ? data2 : [];
         setApiProducts(rows2);
         const d: Record<string, ProductDraft> = {};
         rows2.forEach((p) => { d[p.id] = productToApiDraft(p); });
@@ -451,6 +458,8 @@ function ProductsTab() {
         rows.forEach((p) => { d[p.id] = productToApiDraft(p); });
         setDrafts(d);
       }
+    } catch (e: any) {
+      setLoadError(e?.message ?? "Error al cargar productos");
     } finally { setLoading(false); }
   };
 
@@ -504,6 +513,14 @@ function ProductsTab() {
   };
 
   if (loading) return <div className="text-center py-16 text-muted-foreground tracking-widest">Cargando productos...</div>;
+  if (loadError) return (
+    <div className="border border-destructive p-8 text-center space-y-3">
+      <p className="text-destructive text-sm tracking-wider">Error al cargar productos: {loadError}</p>
+      <button onClick={loadProducts} className="flex items-center gap-2 mx-auto px-4 py-2 border border-border hover:bg-muted transition-colors text-sm tracking-wider">
+        <RefreshCw size={14} /> REINTENTAR
+      </button>
+    </div>
+  );
 
   return (
     <div>

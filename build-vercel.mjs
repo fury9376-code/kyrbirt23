@@ -13,6 +13,13 @@ function run(label, cmd, cwd) {
   console.log(`==> ${label}: DONE`);
 }
 
+// Push DB schema to production database (creates tables if they don't exist)
+run(
+  "Push DB schema (Drizzle)",
+  "./node_modules/.bin/drizzle-kit push --config ./drizzle.config.ts",
+  resolve(root, "lib/db")
+);
+
 // Build api-server directly (no pnpm, avoids preinstall hook)
 run(
   "Build api-server",
