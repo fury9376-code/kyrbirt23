@@ -1,6 +1,6 @@
 {
   "framework": null,
-  "buildCommand": "pnpm install && pnpm --filter @workspace/api-server run build && pnpm --filter @workspace/kyrbirt run build && node -e \"require('fs').cpSync('artifacts/kyrbirt/dist', 'dist', {recursive:true})\"",
+  "buildCommand": "pnpm install && node build-vercel.mjs",
   "outputDirectory": "dist",
   "rewrites": [
     { "source": "/api/:path*", "destination": "/api/handler" }
