@@ -167,5 +167,8 @@ router.get("/admin/orders", async (req, res) => {
   if (provided !== configured) {
     return res.status(401).json({ error: "Unauthorized" });
   }
+  const orders = await db.select().from(ordersTable).orderBy(desc(ordersTable.createdAt));
+  return res.json(orders);
+});
 
 export default router;
