@@ -1034,7 +1034,7 @@ const TABS: { id: Tab; label: string; icon: React.ReactNode }[] = [
 export default function Admin() {
   const [password, setPassword] = useState("");
   const [authed, setAuthed] = useState(false);
-  const [error, setError] = useState(false);
+  const [errorMsg, setErrorMsg] = useState<string | null>(null);
   const [activeTab, setActiveTab] = useState<Tab>("orders");
   const [settings, setSettings] = useState<Settings>({});
 
@@ -1047,6 +1047,7 @@ export default function Admin() {
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
+    setErrorMsg(null);
     try {
       const res = await fetch("/api/admin/verify", {
         method: "POST",
@@ -1056,13 +1057,19 @@ export default function Admin() {
       if (res.ok) {
         _sessionPassword = password;
         setAuthed(true);
-        setError(false);
+        setErrorMsg(null);
         fetchSettings();
+      } else if (res.status === 401) {
+        setErrorMsg("Contraseña incorrecta");
+      } else if (res.status === 503) {
+        setErrorMsg("Error del servidor: ADMIN_PASSWORD no configurado en las variables de entorno");
+      } else if (res.status === 404) {
+        setErrorMsg("Error: el servidor no está desplegado correctamente (ruta no encontrada)");
       } else {
-        setError(true);
+        setErrorMsg(`Error del servidor (${res.status}) — revisá los logs de Vercel`);
       }
     } catch {
-      setError(true);
+      setErrorMsg("No se pudo conectar con el servidor — verificá que el backend esté desplegado");
     }
   };
 
@@ -1104,11 +1111,11 @@ export default function Admin() {
                       type="password"
                       value={password}
                       onChange={(e) => setPassword(e.target.value)}
-                      className={`rounded-none border-border ${error ? "border-destructive" : ""}`}
+                      className={`rounded-none border-border ${errorMsg ? "border-destructive" : ""}`}
                       placeholder="••••••••"
                       data-testid="input-admin-password"
                     />
-                    {error && <p className="text-destructive text-xs mt-2 tracking-wider">Contraseña incorrecta</p>}
+                    {errorMsg && <p className="text-destructive text-xs mt-2 tracking-wider">{errorMsg}</p>}
                   </div>
                   <Button type="submit" className="w-full rounded-none font-display tracking-widest" data-testid="button-admin-login">
                     INGRESAR

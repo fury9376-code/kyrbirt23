@@ -16,11 +16,11 @@ router.use(productsRouter);
 // Server-side admin password verification — never exposes the secret to the client
 router.post("/admin/verify", (req, res) => {
   const { password } = req.body as { password?: string };
-  const adminPassword = process.env["ADMIN_PASSWORD"] ?? "";
+  const adminPassword = (process.env["ADMIN_PASSWORD"] ?? "").trim();
   if (!adminPassword) {
     return res.status(503).json({ ok: false, error: "ADMIN_PASSWORD env var not configured" });
   }
-  if (password === adminPassword) {
+  if ((password ?? "").trim() === adminPassword) {
     return res.json({ ok: true });
   }
   return res.status(401).json({ ok: false, error: "Incorrect password" });

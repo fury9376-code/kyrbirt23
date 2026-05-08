@@ -7,11 +7,11 @@ import type { Request, Response, NextFunction } from "express";
  * - passes through if correct
  */
 export function requireAdminAuth(req: Request, res: Response, next: NextFunction) {
-  const configured = process.env["ADMIN_PASSWORD"];
+  const configured = (process.env["ADMIN_PASSWORD"] ?? "").trim();
   if (!configured) {
     return res.status(503).json({ error: "Admin auth not configured — set ADMIN_PASSWORD secret" });
   }
-  const provided = req.headers["x-admin-password"];
+  const provided = String(req.headers["x-admin-password"] ?? "").trim();
   if (!provided || provided !== configured) {
     return res.status(401).json({ error: "Unauthorized" });
   }
