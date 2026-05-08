@@ -1,6 +1,6 @@
 {
   "framework": null,
-  "buildCommand": "pnpm install && pnpm --filter @workspace/api-server run build && pnpm --filter @workspace/kyrbirt run build && mkdir -p dist && cp -r artifacts/kyrbirt/dist/. dist/",
+  "buildCommand": "pnpm install && pnpm --filter @workspace/api-server run build && pnpm --filter @workspace/kyrbirt run build && node -e \"require('fs').cpSync('artifacts/kyrbirt/dist', 'dist', {recursive:true})\"",
   "outputDirectory": "dist",
   "rewrites": [
     { "source": "/api/:path*", "destination": "/api/handler" }
