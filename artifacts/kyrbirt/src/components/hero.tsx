@@ -17,15 +17,15 @@ export function Hero() {
     >
       <div className="absolute inset-0 bg-black/40 z-10" />
 
-      <div className="absolute inset-[24px] z-0 overflow-hidden">
-        <img
-          src="https://res.cloudinary.com/dwcjuvdtn/image/upload/v1777762907/fondo_web_usjvpe.png"
-          alt="KYRBIRT background"
-          loading="eager"
-          className="w-full h-full object-cover"
-          style={{ filter: "grayscale(100%) brightness(1.2)" }}
-        />
-      </div>
+      <div
+        className="absolute inset-[24px] z-0 overflow-hidden"
+        style={{
+          backgroundImage: "url(https://res.cloudinary.com/dwcjuvdtn/image/upload/v1777762907/fondo_web_usjvpe.png)",
+          backgroundSize: "cover",
+          backgroundPosition: "center",
+          filter: "grayscale(100%) brightness(1.2)",
+        }}
+      />
 
       <div className="pointer-events-none fixed inset-0 z-50 h-full w-full opacity-[0.07]"
         style={{
