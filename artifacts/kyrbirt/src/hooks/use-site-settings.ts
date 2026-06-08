@@ -5,6 +5,7 @@ export type SiteSettings = {
   drop_target_date: string;
   drop_bg_image: string;
   drop_subtitle: string;
+  hero_bg_image: string;
   footer_description: string;
   footer_instagram: string;
   footer_whatsapp: string;
@@ -15,7 +16,8 @@ export type SiteSettings = {
 const DEFAULTS: SiteSettings = {
   drop_name: "DROP 5",
   drop_target_date: "2026-05-08T23:00:00.000Z",
-  drop_bg_image: "https://res.cloudinary.com/dwcjuvdtn/image/upload/v1777763004/salasfl4co_nkstmy.png",
+  drop_bg_image: "",
+  hero_bg_image: "",
   drop_subtitle: "Viernes 8 de Mayo — 20:00 hs Argentina",
   footer_description: "Argentine streetwear brand. Built around street culture, local artists, and limited drops. Real recognizes real.",
   footer_instagram: "https://www.instagram.com/kyrbirt/",
@@ -30,7 +32,8 @@ export function useSiteSettings() {
     queryFn: async () => {
       const res = await fetch("/api/settings");
       if (!res.ok) return DEFAULTS;
-      return res.json();
+      const raw = await res.json();
+      return { ...DEFAULTS, ...raw };
     },
     staleTime: 30_000,
   });

@@ -3,37 +3,23 @@ import { motion, AnimatePresence } from "framer-motion";
 import { Maximize2, X } from "lucide-react";
 import { useQuery } from "@tanstack/react-query";
 
-const FAM_PHOTOS_FALLBACK = [
-  "https://res.cloudinary.com/dwcjuvdtn/image/upload/v1777763012/turrobaby_ppibbe.png",
-  "https://res.cloudinary.com/dwcjuvdtn/image/upload/v1777763034/pppatuka_sgyabe.png",
-  "https://res.cloudinary.com/dwcjuvdtn/image/upload/v1777763013/panchitolefleur_lzvqoe.png",
-  "https://res.cloudinary.com/dwcjuvdtn/image/upload/v1777763011/neopistea_u1qr5p.png",
-  "https://res.cloudinary.com/dwcjuvdtn/image/upload/v1777763005/ceroasterisco_jdk30z.png",
-  "https://res.cloudinary.com/dwcjuvdtn/image/upload/v1777763004/bhaviboi_ht4rh1.png",
-  "https://res.cloudinary.com/dwcjuvdtn/image/upload/v1777763004/salasfl4co_nkstmy.png",
-  "https://res.cloudinary.com/dwcjuvdtn/image/upload/v1777763001/shako2b_ejtp9f.png",
-  "https://res.cloudinary.com/dwcjuvdtn/image/upload/v1777762998/luhrever_u8dj5c.png",
-  "https://res.cloudinary.com/dwcjuvdtn/image/upload/v1777839945/uzu.messineo_1_uax1pr.png",
-  "https://res.cloudinary.com/dwcjuvdtn/image/upload/v1777763004/sstiffy_v8f6ir.png",
-];
-
 function useFamPhotos() {
   const { data } = useQuery<string[]>({
     queryKey: ["fam-photos"],
     queryFn: async () => {
       const res = await fetch("/api/settings");
-      if (!res.ok) return FAM_PHOTOS_FALLBACK;
+      if (!res.ok) return [];
       const s = await res.json();
       try {
         const photos = JSON.parse(s.fam_photos || "[]");
-        return Array.isArray(photos) && photos.length > 0 ? photos : FAM_PHOTOS_FALLBACK;
+        return Array.isArray(photos) ? photos : [];
       } catch {
-        return FAM_PHOTOS_FALLBACK;
+        return [];
       }
     },
     staleTime: 30_000,
   });
-  return data ?? FAM_PHOTOS_FALLBACK;
+  return data ?? [];
 }
 
 export function Fam() {
@@ -54,71 +40,81 @@ export function Fam() {
           <div className="w-12 h-1 bg-primary mx-auto" />
         </motion.div>
 
+        {photos.length === 0 && (
+          <div className="text-center py-24 text-muted-foreground text-sm tracking-widest uppercase">
+            Próximamente...
+          </div>
+        )}
+
         {/* Mobile: 2-col grid */}
-        <div className="grid grid-cols-2 md:hidden gap-3">
-          {photos.map((photo, index) => (
-            <motion.div
-              key={photo + index}
-              initial={{ opacity: 0, y: 20 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true }}
-              transition={{ delay: index * 0.05, duration: 0.4 }}
-              className="relative group cursor-pointer overflow-hidden bg-card min-h-[160px]"
-              onClick={() => setSelectedPhoto(photo)}
-              data-testid={`img-fam-${index}`}
-            >
-              <img
-                src={photo}
-                alt={`FAM ${index + 1}`}
-                loading="lazy"
-                className="w-full h-auto object-cover transition-all duration-700 group-hover:scale-105"
-                onError={(e) => {
-                  e.currentTarget.style.display = "none";
-                  const parent = e.currentTarget.parentElement;
-                  if (parent) parent.style.display = "none";
-                }}
-              />
-              <div className="absolute inset-0 bg-black/0 group-hover:bg-black/30 transition-colors duration-300 flex items-center justify-center opacity-0 group-hover:opacity-100">
-                <div className="bg-background/80 text-foreground p-2 rounded-full backdrop-blur-sm">
-                  <Maximize2 size={18} />
+        {photos.length > 0 && (
+          <div className="grid grid-cols-2 md:hidden gap-3">
+            {photos.map((photo, index) => (
+              <motion.div
+                key={photo + index}
+                initial={{ opacity: 0, y: 20 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: true }}
+                transition={{ delay: index * 0.05, duration: 0.4 }}
+                className="relative group cursor-pointer overflow-hidden bg-card"
+                onClick={() => setSelectedPhoto(photo)}
+                data-testid={`img-fam-${index}`}
+              >
+                <img
+                  src={photo}
+                  alt={`FAM ${index + 1}`}
+                  loading="lazy"
+                  className="w-full h-auto object-cover transition-all duration-700 group-hover:scale-105"
+                  onError={(e) => {
+                    e.currentTarget.style.display = "none";
+                    const parent = e.currentTarget.parentElement;
+                    if (parent) parent.style.display = "none";
+                  }}
+                />
+                <div className="absolute inset-0 bg-black/0 group-hover:bg-black/30 transition-colors duration-300 flex items-center justify-center opacity-0 group-hover:opacity-100">
+                  <div className="bg-background/80 text-foreground p-2 rounded-full backdrop-blur-sm">
+                    <Maximize2 size={18} />
+                  </div>
                 </div>
-              </div>
-            </motion.div>
-          ))}
-        </div>
+              </motion.div>
+            ))}
+          </div>
+        )}
 
         {/* Desktop: masonry columns */}
-        <div className="hidden md:block columns-3 gap-4 space-y-4">
-          {photos.map((photo, index) => (
-            <motion.div
-              key={photo + index}
-              initial={{ opacity: 0, y: 20 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true }}
-              transition={{ delay: index * 0.07, duration: 0.5 }}
-              className="break-inside-avoid relative group cursor-pointer overflow-hidden mb-4 bg-card"
-              onClick={() => setSelectedPhoto(photo)}
-              data-testid={`img-fam-desktop-${index}`}
-            >
-              <img
-                src={photo}
-                alt={`FAM ${index + 1}`}
-                loading="lazy"
-                className="w-full h-auto object-cover transition-all duration-700 group-hover:scale-105"
-                onError={(e) => {
-                  e.currentTarget.style.display = "none";
-                  const parent = e.currentTarget.parentElement;
-                  if (parent) parent.style.display = "none";
-                }}
-              />
-              <div className="absolute inset-0 bg-black/0 group-hover:bg-black/30 transition-colors duration-300 flex items-center justify-center opacity-0 group-hover:opacity-100">
-                <div className="bg-background/80 text-foreground p-3 rounded-full backdrop-blur-sm transform scale-90 group-hover:scale-100 transition-transform">
-                  <Maximize2 size={24} />
+        {photos.length > 0 && (
+          <div className="hidden md:block columns-3 gap-4 space-y-4">
+            {photos.map((photo, index) => (
+              <motion.div
+                key={photo + index}
+                initial={{ opacity: 0, y: 20 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: true }}
+                transition={{ delay: index * 0.07, duration: 0.5 }}
+                className="break-inside-avoid relative group cursor-pointer overflow-hidden mb-4 bg-card"
+                onClick={() => setSelectedPhoto(photo)}
+                data-testid={`img-fam-desktop-${index}`}
+              >
+                <img
+                  src={photo}
+                  alt={`FAM ${index + 1}`}
+                  loading="lazy"
+                  className="w-full h-auto object-cover transition-all duration-700 group-hover:scale-105"
+                  onError={(e) => {
+                    e.currentTarget.style.display = "none";
+                    const parent = e.currentTarget.parentElement;
+                    if (parent) parent.style.display = "none";
+                  }}
+                />
+                <div className="absolute inset-0 bg-black/0 group-hover:bg-black/30 transition-colors duration-300 flex items-center justify-center opacity-0 group-hover:opacity-100">
+                  <div className="bg-background/80 text-foreground p-3 rounded-full backdrop-blur-sm transform scale-90 group-hover:scale-100 transition-transform">
+                    <Maximize2 size={24} />
+                  </div>
                 </div>
-              </div>
-            </motion.div>
-          ))}
-        </div>
+              </motion.div>
+            ))}
+          </div>
+        )}
       </div>
 
       <AnimatePresence>

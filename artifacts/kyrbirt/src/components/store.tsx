@@ -195,9 +195,24 @@ export function Store() {
                         className={`object-cover w-full h-full transition-transform duration-700 ${
                           isLocked ? "blur-md scale-105" : "group-hover:scale-105"
                         }`}
-                        onError={(e) => { e.currentTarget.style.display = "none"; }}
+                        onError={(e) => {
+                          e.currentTarget.style.display = "none";
+                          const placeholder = e.currentTarget.nextElementSibling as HTMLElement | null;
+                          if (placeholder) placeholder.style.display = "flex";
+                        }}
                       />
                     ) : null}
+                    <div
+                      className="absolute inset-0 items-center justify-center bg-card/80 text-muted-foreground flex-col gap-2"
+                      style={{ display: product.photos[0] ? "none" : "flex" }}
+                    >
+                      <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1" opacity="0.4">
+                        <rect x="3" y="3" width="18" height="18" rx="2" />
+                        <circle cx="8.5" cy="8.5" r="1.5" />
+                        <path d="M21 15l-5-5L5 21" />
+                      </svg>
+                      <span className="text-[10px] tracking-widest uppercase opacity-40">Sin imagen</span>
+                    </div>
 
                     {isLocked && (
                       <div className="absolute inset-0 bg-black/50 flex flex-col items-center justify-center">

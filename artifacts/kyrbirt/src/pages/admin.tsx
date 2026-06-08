@@ -606,6 +606,7 @@ function DropTab({ settings, onSaved }: { settings: Settings; onSaved: () => voi
     drop_target_date: settings.drop_target_date ?? "2026-05-08T23:00:00.000Z",
     drop_bg_image: settings.drop_bg_image ?? "",
     drop_subtitle: settings.drop_subtitle ?? "",
+    hero_bg_image: (settings as any).hero_bg_image ?? "",
   });
   const [saving, setSaving] = useState(false);
   const set = (k: string, v: string) => setForm((f) => ({ ...f, [k]: v }));
@@ -616,6 +617,7 @@ function DropTab({ settings, onSaved }: { settings: Settings; onSaved: () => voi
       drop_target_date: settings.drop_target_date ?? "2026-05-08T23:00:00.000Z",
       drop_bg_image: settings.drop_bg_image ?? "",
       drop_subtitle: settings.drop_subtitle ?? "",
+      hero_bg_image: (settings as any).hero_bg_image ?? "",
     });
   }, [settings]);
 
@@ -656,11 +658,18 @@ function DropTab({ settings, onSaved }: { settings: Settings; onSaved: () => voi
         <Input className="rounded-none" value={form.drop_subtitle} onChange={(e) => set("drop_subtitle", e.target.value)} />
         <p className="text-xs text-muted-foreground mt-1">Ej: "Viernes 8 de Mayo — 20:00 hs Argentina"</p>
       </Field>
-      <Field label="URL Imagen de Fondo del Cronómetro">
+      <Field label="URL Imagen de Fondo del Cronómetro (página Drops)">
         <Input className="rounded-none" value={form.drop_bg_image} onChange={(e) => set("drop_bg_image", e.target.value)} placeholder="https://..." />
         {form.drop_bg_image && (
           <img src={form.drop_bg_image} alt="preview" className="mt-3 h-32 w-full object-cover opacity-70" />
         )}
+      </Field>
+      <Field label="URL Imagen de Fondo del Hero (página principal)">
+        <Input className="rounded-none" value={form.hero_bg_image} onChange={(e) => set("hero_bg_image", e.target.value)} placeholder="https://... (subí la imagen a imgur, drive, etc.)" />
+        {form.hero_bg_image && (
+          <img src={form.hero_bg_image} alt="preview" className="mt-3 h-32 w-full object-cover opacity-70" />
+        )}
+        <p className="text-xs text-muted-foreground mt-1">Dejá vacío para usar el fondo oscuro automático. Si usabas Cloudinary, subí la foto a un servicio público (p.ej. imgur.com) y pegá el URL directo.</p>
       </Field>
       <SaveBtn loading={saving} onClick={save} />
     </div>
