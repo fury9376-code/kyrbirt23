@@ -63,7 +63,7 @@ export function Fam() {
               whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true }}
               transition={{ delay: index * 0.05, duration: 0.4 }}
-              className="relative group cursor-pointer overflow-hidden"
+              className="relative group cursor-pointer overflow-hidden bg-card min-h-[160px]"
               onClick={() => setSelectedPhoto(photo)}
               data-testid={`img-fam-${index}`}
             >
@@ -72,6 +72,11 @@ export function Fam() {
                 alt={`FAM ${index + 1}`}
                 loading="lazy"
                 className="w-full h-auto object-cover transition-all duration-700 group-hover:scale-105"
+                onError={(e) => {
+                  e.currentTarget.style.display = "none";
+                  const parent = e.currentTarget.parentElement;
+                  if (parent) parent.style.display = "none";
+                }}
               />
               <div className="absolute inset-0 bg-black/0 group-hover:bg-black/30 transition-colors duration-300 flex items-center justify-center opacity-0 group-hover:opacity-100">
                 <div className="bg-background/80 text-foreground p-2 rounded-full backdrop-blur-sm">
@@ -91,7 +96,7 @@ export function Fam() {
               whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true }}
               transition={{ delay: index * 0.07, duration: 0.5 }}
-              className="break-inside-avoid relative group cursor-pointer overflow-hidden mb-4"
+              className="break-inside-avoid relative group cursor-pointer overflow-hidden mb-4 bg-card"
               onClick={() => setSelectedPhoto(photo)}
               data-testid={`img-fam-desktop-${index}`}
             >
@@ -100,6 +105,11 @@ export function Fam() {
                 alt={`FAM ${index + 1}`}
                 loading="lazy"
                 className="w-full h-auto object-cover transition-all duration-700 group-hover:scale-105"
+                onError={(e) => {
+                  e.currentTarget.style.display = "none";
+                  const parent = e.currentTarget.parentElement;
+                  if (parent) parent.style.display = "none";
+                }}
               />
               <div className="absolute inset-0 bg-black/0 group-hover:bg-black/30 transition-colors duration-300 flex items-center justify-center opacity-0 group-hover:opacity-100">
                 <div className="bg-background/80 text-foreground p-3 rounded-full backdrop-blur-sm transform scale-90 group-hover:scale-100 transition-transform">

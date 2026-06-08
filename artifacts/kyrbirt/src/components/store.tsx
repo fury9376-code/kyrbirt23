@@ -187,14 +187,17 @@ export function Store() {
                   data-testid={`card-product-${product.id}`}
                 >
                   <div className="relative aspect-[3/4] overflow-hidden bg-card mb-2 md:mb-4">
-                    <img
-                      src={product.photos[0]}
-                      alt={product.name}
-                      loading="lazy"
-                      className={`object-cover w-full h-full transition-transform duration-700 ${
-                        isLocked ? "blur-md scale-105" : "group-hover:scale-105"
-                      }`}
-                    />
+                    {product.photos[0] ? (
+                      <img
+                        src={product.photos[0]}
+                        alt={product.name}
+                        loading="lazy"
+                        className={`object-cover w-full h-full transition-transform duration-700 ${
+                          isLocked ? "blur-md scale-105" : "group-hover:scale-105"
+                        }`}
+                        onError={(e) => { e.currentTarget.style.display = "none"; }}
+                      />
+                    ) : null}
 
                     {isLocked && (
                       <div className="absolute inset-0 bg-black/50 flex flex-col items-center justify-center">

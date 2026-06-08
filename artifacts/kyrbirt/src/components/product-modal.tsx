@@ -107,12 +107,15 @@ export function ProductModal({ product, isOpen, onClose }: ProductModalProps) {
               <div className="overflow-hidden h-full" ref={emblaRef}>
                 <div className="flex h-full">
                   {product.photos.map((photo, i) => (
-                    <div key={i} className="flex-[0_0_100%] min-w-0 h-full relative">
-                      <img
-                        src={photo}
-                        alt={`${product.name} - Vista ${i + 1}`}
-                        className="absolute inset-0 w-full h-full object-cover"
-                      />
+                    <div key={i} className="flex-[0_0_100%] min-w-0 h-full relative bg-card">
+                      {photo ? (
+                        <img
+                          src={photo}
+                          alt={`${product.name} - Vista ${i + 1}`}
+                          className="absolute inset-0 w-full h-full object-cover"
+                          onError={(e) => { e.currentTarget.style.display = "none"; }}
+                        />
+                      ) : null}
                     </div>
                   ))}
                 </div>
