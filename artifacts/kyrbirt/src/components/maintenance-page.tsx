@@ -17,7 +17,7 @@ export function MaintenancePage() {
         className="relative z-10 text-center max-w-lg"
       >
         <img
-          src="https://res.cloudinary.com/dwcjuvdtn/image/upload/f_auto,q_auto/kyrbirt_logo_negro_mvptuz"
+          src="https://imgur.com/nxUN6l5"
           alt="KYRBIRT"
           className="w-16 mx-auto mb-12 invert opacity-80"
         />
