@@ -5,17 +5,18 @@ import { requireAdminAuth } from "./admin-auth";
 const router = Router();
 
 const FAM_PHOTOS_DEFAULT = JSON.stringify([
-  "https://res.cloudinary.com/dwcjuvdtn/image/upload/v1777763012/turrobaby_ppibbe.png",
-  "https://res.cloudinary.com/dwcjuvdtn/image/upload/v1777763034/pppatuka_sgyabe.png",
-  "https://res.cloudinary.com/dwcjuvdtn/image/upload/v1777763013/panchitolefleur_lzvqoe.png",
-  "https://res.cloudinary.com/dwcjuvdtn/image/upload/v1777763011/neopistea_u1qr5p.png",
-  "https://res.cloudinary.com/dwcjuvdtn/image/upload/v1777763005/ceroasterisco_jdk30z.png",
-  "https://res.cloudinary.com/dwcjuvdtn/image/upload/v1777763004/bhaviboi_ht4rh1.png",
-  "https://res.cloudinary.com/dwcjuvdtn/image/upload/v1777763004/salasfl4co_nkstmy.png",
-  "https://res.cloudinary.com/dwcjuvdtn/image/upload/v1777763001/shako2b_ejtp9f.png",
-  "https://res.cloudinary.com/dwcjuvdtn/image/upload/v1777762998/luhrever_u8dj5c.png",
-  "https://res.cloudinary.com/dwcjuvdtn/image/upload/v1777839945/uzu.messineo_1_uax1pr.png",
-  "https://res.cloudinary.com/dwcjuvdtn/image/upload/v1777763004/sstiffy_v8f6ir.png",
+  "https://i.imgur.com/1FZ9pFu.jpg",
+  "https://i.imgur.com/cjesHW8.jpg",
+  "https://i.imgur.com/wNUjx0O.jpg",
+  "https://i.imgur.com/Da7Es2H.jpg",
+  "https://i.imgur.com/F1AYzcH.jpg",
+  "https://i.imgur.com/AFqlpcn.jpg",
+  "https://i.imgur.com/OdfLFzr.jpg",
+  "https://i.imgur.com/AU6FW0x.jpg",
+  "https://i.imgur.com/cSov4Pl.jpg",
+  "https://i.imgur.com/HICLNuo.jpg",
+  "https://i.imgur.com/54ed951.jpg",
+  "https://i.imgur.com/qlX8T3A.jpg",
 ]);
 
 const SIZE_GUIDE_DEFAULT = JSON.stringify([
@@ -28,7 +29,7 @@ const SIZE_GUIDE_DEFAULT = JSON.stringify([
 const DEFAULTS: Record<string, string> = {
   drop_name: "DROP 5",
   drop_target_date: "2026-05-08T23:00:00.000Z",
-  drop_bg_image: "https://res.cloudinary.com/dwcjuvdtn/image/upload/v1777763004/salasfl4co_nkstmy.png",
+  drop_bg_image: "https://i.imgur.com/3kiad0K.jpg",
   drop_subtitle: "Viernes 8 de Mayo — 20:00 hs Argentina",
   footer_description: "Argentine streetwear brand. Built around street culture, local artists, and limited drops. Real recognizes real.",
   footer_instagram: "https://www.instagram.com/kyrbirt/",

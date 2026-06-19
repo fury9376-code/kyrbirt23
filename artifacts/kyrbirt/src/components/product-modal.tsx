@@ -2,7 +2,7 @@ import { useState, useEffect } from "react";
 import { Dialog, DialogContent, DialogTitle } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { ChevronLeft, ChevronRight, X, Ruler } from "lucide-react";
-import { type Product, type Colorway } from "@/data/products";
+import { type Product, type Colorway, type SizeGuideRow } from "@/data/products";
 import useEmblaCarousel from "embla-carousel-react";
 import { PurchaseForm } from "./purchase-form";
 import {
@@ -12,10 +12,8 @@ import {
 } from "@/components/ui/popover";
 import { useQuery } from "@tanstack/react-query";
 
-type SizeRow = { size: string; chest: string; length: string };
-
-function useSizeGuide() {
-  const { data } = useQuery<SizeRow[]>({
+function useGlobalSizeGuide() {
+  const { data } = useQuery<SizeGuideRow[]>({
     queryKey: ["size-guide"],
     queryFn: async () => {
       const res = await fetch("/api/settings");
@@ -48,7 +46,7 @@ export function ProductModal({ product, isOpen, onClose }: ProductModalProps) {
   const [showPurchaseForm, setShowPurchaseForm] = useState(false);
   const [selectedColorway, setSelectedColorway] = useState<Colorway | null>(null);
   const [selectedSize, setSelectedSize] = useState<string>("");
-  const sizeGuide = useSizeGuide();
+  const globalSizeGuide = useGlobalSizeGuide();
 
   useEffect(() => {
     if (isOpen) {
@@ -84,6 +82,11 @@ export function ProductModal({ product, isOpen, onClose }: ProductModalProps) {
     allColorwaysSoldOut ||
     colorwaySoldOut ||
     allSizesUnavailable;
+
+  const sizeGuide: SizeGuideRow[] =
+    (product.sizeGuide && product.sizeGuide.length > 0)
+      ? product.sizeGuide
+      : globalSizeGuide;
 
   return (
     <>
@@ -213,7 +216,9 @@ export function ProductModal({ product, isOpen, onClose }: ProductModalProps) {
                         <div className="bg-card">
                           <div className="px-4 py-3 border-b border-border">
                             <p className="text-xs font-bold tracking-widest uppercase">Guía de Talles</p>
-                            <p className="text-[10px] text-muted-foreground tracking-wider mt-0.5">Medidas en centímetros</p>
+                            <p className="text-[10px] text-muted-foreground tracking-wider mt-0.5">
+                              {product.name} — medidas en centímetros
+                            </p>
                           </div>
                           <table className="w-full text-sm">
                             <thead>
@@ -225,7 +230,7 @@ export function ProductModal({ product, isOpen, onClose }: ProductModalProps) {
                             </thead>
                             <tbody>
                               {sizeGuide.map((row, i) => (
-                                <tr key={row.size} className={`border-b border-border/50 ${i % 2 === 0 ? "" : "bg-muted/20"}`}>
+                                <tr key={row.size + i} className={`border-b border-border/50 ${i % 2 === 0 ? "" : "bg-muted/20"}`}>
                                   <td className="py-2.5 px-4">
                                     <span className="font-display tracking-wider text-base">{row.size}</span>
                                   </td>

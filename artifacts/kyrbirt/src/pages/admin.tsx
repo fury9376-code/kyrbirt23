@@ -53,6 +53,7 @@ async function seedProductsIfEmpty(apiProducts: ApiProduct[]) {
         ...p,
         price: String(p.price),
         colorways: JSON.stringify(p.colorways),
+        sizeGuide: JSON.stringify(p.sizeGuide || []),
         sortOrder: i,
       }),
     });
@@ -233,11 +234,14 @@ function ColorwayEditor({
 }
 
 // ─── Product Draft ────────────────────────────────────────────────────────────
+type SizeGuideRow = { size: string; chest: string; length: string };
+
 type ProductDraft = {
   id: string; name: string; description: string;
   photos: string[]; colorways: Colorway[]; price: string;
   sizes: string[]; category: string; subcategory: string;
   locked: boolean; available: boolean; soldOut: boolean; stock: string; sortOrder: number;
+  sizeGuide: SizeGuideRow[];
 };
 
 function emptyDraft(sortOrder = 0): ProductDraft {
@@ -246,6 +250,7 @@ function emptyDraft(sortOrder = 0): ProductDraft {
     colorways: [{ name: "", sizes: [], unavailableSizes: [], soldOut: false }],
     price: "0", sizes: ["S", "M", "L"], category: "Remeras", subcategory: "",
     locked: false, available: true, soldOut: false, stock: "", sortOrder,
+    sizeGuide: [],
   };
 }
 
@@ -264,6 +269,11 @@ function parseColorways(raw: string, defaultSizes: string[]): Colorway[] {
 
 function productToApiDraft(p: ApiProduct): ProductDraft {
   const defaultSizes = JSON.parse(p.sizes || "[]");
+  let sizeGuide: SizeGuideRow[] = [];
+  try {
+    const parsed = JSON.parse((p as any).sizeGuide || "[]");
+    sizeGuide = Array.isArray(parsed) ? parsed : [];
+  } catch { sizeGuide = []; }
   return {
     id: p.id, name: p.name, description: p.description,
     photos: JSON.parse(p.photos || "[]"),
@@ -275,6 +285,7 @@ function productToApiDraft(p: ApiProduct): ProductDraft {
     soldOut: p.soldOut,
     stock: p.stock != null ? String(p.stock) : "",
     sortOrder: p.sortOrder,
+    sizeGuide,
   };
 }
 
@@ -406,6 +417,57 @@ function ProductForm({ draft, onChange, onSave, onDelete, saving, isNew }: {
         </Field>
       </div>
 
+      <div>
+        <div className="flex items-center justify-between mb-3">
+          <label className="text-xs tracking-widest uppercase text-muted-foreground flex items-center gap-1.5">
+            <Ruler size={12} /> Guía de Talles de esta prenda ({draft.sizeGuide.length} filas)
+          </label>
+          <button
+            onClick={() => set("sizeGuide", [...draft.sizeGuide, { size: "", chest: "", length: "" }])}
+            className="text-xs tracking-widest uppercase text-muted-foreground hover:text-primary flex items-center gap-1"
+          >
+            <Plus size={12} /> Agregar fila
+          </button>
+        </div>
+        {draft.sizeGuide.length === 0 ? (
+          <p className="text-xs text-muted-foreground py-2">Sin guía de talles configurada — se usará la guía general del sitio.</p>
+        ) : (
+          <div className="space-y-2">
+            <div className="grid grid-cols-[1fr_1fr_1fr_auto] gap-2 text-[10px] tracking-widest uppercase text-muted-foreground mb-1 px-1">
+              <span>Talle</span><span>Sisa (cm)</span><span>Largo (cm)</span><span></span>
+            </div>
+            {draft.sizeGuide.map((row, i) => (
+              <div key={i} className="grid grid-cols-[1fr_1fr_1fr_auto] gap-2 items-center">
+                <Input
+                  className="rounded-none h-8 text-sm text-center"
+                  value={row.size}
+                  onChange={(e) => set("sizeGuide", draft.sizeGuide.map((r, j) => j === i ? { ...r, size: e.target.value } : r))}
+                  placeholder="S"
+                />
+                <Input
+                  className="rounded-none h-8 text-sm text-center"
+                  value={row.chest}
+                  onChange={(e) => set("sizeGuide", draft.sizeGuide.map((r, j) => j === i ? { ...r, chest: e.target.value } : r))}
+                  placeholder="50"
+                />
+                <Input
+                  className="rounded-none h-8 text-sm text-center"
+                  value={row.length}
+                  onChange={(e) => set("sizeGuide", draft.sizeGuide.map((r, j) => j === i ? { ...r, length: e.target.value } : r))}
+                  placeholder="70"
+                />
+                <button
+                  onClick={() => set("sizeGuide", draft.sizeGuide.filter((_, j) => j !== i))}
+                  className="p-1.5 border border-border hover:bg-destructive/10 text-destructive"
+                >
+                  <X size={12} />
+                </button>
+              </div>
+            ))}
+          </div>
+        )}
+      </div>
+
       <div className="flex gap-3 pt-2">
         <SaveBtn loading={saving} onClick={onSave} label={isNew ? "CREAR PRODUCTO" : "GUARDAR CAMBIOS"} />
         {!isNew && onDelete && (
@@ -473,6 +535,7 @@ function ProductsTab() {
         body: JSON.stringify({
           ...draft,
           colorways: JSON.stringify(draft.colorways),
+          sizeGuide: JSON.stringify(draft.sizeGuide),
           stock: draft.stock !== "" ? Number(draft.stock) : null,
         }),
       });
@@ -503,6 +566,7 @@ function ProductsTab() {
         body: JSON.stringify({
           ...newDraft,
           colorways: JSON.stringify(newDraft.colorways),
+          sizeGuide: JSON.stringify(newDraft.sizeGuide),
           stock: newDraft.stock !== "" ? Number(newDraft.stock) : null,
         }),
       });

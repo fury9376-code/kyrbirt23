@@ -9,6 +9,7 @@ export const siteProductsTable = pgTable("site_products", {
   price: text("price").notNull().default("0"),
   sizes: text("sizes").notNull().default("[]"),
   unavailableSizes: text("unavailable_sizes").notNull().default("[]"),
+  sizeGuide: text("size_guide").notNull().default("[]"),
   category: text("category").notNull().default("Remeras"),
   subcategory: text("subcategory"),
   locked: boolean("locked").notNull().default(false),
