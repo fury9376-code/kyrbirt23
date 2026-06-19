@@ -30,6 +30,7 @@ const DEFAULTS: Record<string, string> = {
   drop_name: "DROP 5",
   drop_target_date: "2026-05-08T23:00:00.000Z",
   drop_bg_image: "https://i.imgur.com/3kiad0K.jpg",
+  hero_bg_image: "https://i.imgur.com/SOslfpv.png",
   drop_subtitle: "Viernes 8 de Mayo — 20:00 hs Argentina",
   footer_description: "Argentine streetwear brand. Built around street culture, local artists, and limited drops. Real recognizes real.",
   footer_instagram: "https://www.instagram.com/kyrbirt/",
