@@ -22,7 +22,7 @@ export function Footer() {
             <img 
               src={FOOTER_LOGO_URL}
               alt="KYRBIRT Logo" 
-              className="h-8 mb-6"
+              className="h-6 mb-6"
             />
             <p className="text-muted-foreground max-w-sm leading-relaxed">
               {settings.footer_description}
