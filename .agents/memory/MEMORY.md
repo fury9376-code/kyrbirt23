@@ -1,0 +1,2 @@
+- [GitHub connector uploads](github-connector-upload.md) — use temp manifests and sequential blob uploads to avoid shell truncation and secondary rate limits.
+- [Media fallbacks](media-fallbacks.md) — never render page screenshots as hero or product fallbacks; use neutral branded placeholders.
