@@ -1,7 +1,7 @@
 import { Router } from "express";
 import { db, siteProductsTable } from "@workspace/db";
 import { eq, asc } from "drizzle-orm";
-import { requireAdminAuth } from "./admin-auth";
+import { requireAdminAuth } from "./admin-auth.js";
 
 const router = Router();
 

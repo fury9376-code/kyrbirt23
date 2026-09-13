@@ -1,5 +1,5 @@
 import { Router } from "express";
-import { requireAdminAuth } from "./admin-auth";
+import { requireAdminAuth } from "./admin-auth.js";
 
 const router = Router();
 

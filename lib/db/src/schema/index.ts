@@ -1,3 +1,3 @@
-export * from "./orders";
-export * from "./products";
-export * from "./settings";
+export * from "./orders.js";
+export * from "./products.js";
+export * from "./settings.js";

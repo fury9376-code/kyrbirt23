@@ -1,6 +1,6 @@
 import { Router } from "express";
 import { db, siteSettingsTable } from "@workspace/db";
-import { requireAdminAuth } from "./admin-auth";
+import { requireAdminAuth } from "./admin-auth.js";
 
 const router = Router();
 const BLOCKED_CLOUDINARY_PREFIX =
