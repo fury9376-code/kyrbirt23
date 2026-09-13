@@ -70,9 +70,9 @@ export function ProductModal({ product, isOpen, onClose }: ProductModalProps) {
   const activeUnavailable = selectedColorway ? selectedColorway.unavailableSizes : [];
   const availableSizes = activeSizes.filter((s) => !activeUnavailable.includes(s));
   const allSizesUnavailable = activeSizes.length > 0 && availableSizes.length === 0;
-  const discountedPrice = getDiscountedPrice(product.price, settings);
-  const discountActive = hasActiveDiscount(product.price, settings);
-  const discountPercentage = getDiscountPercentage(settings);
+  const discountedPrice = getDiscountedPrice(product.price, product);
+  const discountActive = hasActiveDiscount(product.price, product);
+  const discountPercentage = getDiscountPercentage(product);
 
   const buyDisabled =
     productSoldOut ||
@@ -145,7 +145,7 @@ export function ProductModal({ product, isOpen, onClose }: ProductModalProps) {
                           {formatPrice(discountedPrice)}
                         </span>
                         <span className="text-[10px] tracking-widest text-primary uppercase">
-                          {settings.discount_label || "DESCUENTO"} · {discountPercentage}%
+                           {product.discountLabel || "DESCUENTO"} · {discountPercentage}%
                         </span>
                       </div>
                     ) : (

@@ -1,14 +1,11 @@
 import { useQuery } from "@tanstack/react-query";
-import { HERO_IMAGE_URL } from "@/lib/assets";
+import { FAM_FALLBACK_URL } from "@/lib/assets";
 
 export type SiteSettings = {
   drop_name: string;
   drop_target_date: string;
   drop_bg_image: string;
   drop_subtitle: string;
-  discount_enabled: string;
-  discount_percentage: string;
-  discount_label: string;
   contact_phone: string;
   contact_whatsapp: string;
   contact_address: string;
@@ -27,11 +24,8 @@ export type SiteSettings = {
 const DEFAULTS: SiteSettings = {
   drop_name: "DROP 5",
   drop_target_date: "2026-05-08T23:00:00.000Z",
-  drop_bg_image: HERO_IMAGE_URL,
+  drop_bg_image: "",
   drop_subtitle: "Viernes 8 de Mayo — 20:00 hs Argentina",
-  discount_enabled: "false",
-  discount_percentage: "0",
-  discount_label: "DESCUENTO",
   contact_phone: "+54 223 574-4381",
   contact_whatsapp: "2235744381",
   contact_address: "",
@@ -43,7 +37,7 @@ const DEFAULTS: SiteSettings = {
   footer_whatsapp: "https://wa.me/2235744381",
   footer_payment_methods: "EFECTIVO,TRANSFERENCIA,MERCADOPAGO",
   footer_credits: "Diseñado por @_nico.esteban",
-  fam_photos: JSON.stringify([HERO_IMAGE_URL]),
+  fam_photos: JSON.stringify([FAM_FALLBACK_URL]),
   size_guide: JSON.stringify([
     { size: "S", chest: "50", length: "70" },
     { size: "M", chest: "52", length: "72" },

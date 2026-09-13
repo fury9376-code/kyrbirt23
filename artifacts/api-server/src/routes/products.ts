@@ -5,6 +5,12 @@ import { requireAdminAuth } from "./admin-auth";
 
 const router = Router();
 
+function normalizeDiscountPercentage(value: unknown) {
+  const percentage = Number(value);
+  if (!Number.isFinite(percentage)) return 0;
+  return Math.min(100, Math.max(0, Math.round(percentage)));
+}
+
 router.get("/products", async (_req, res) => {
   try {
     const rows = await db.select().from(siteProductsTable).orderBy(asc(siteProductsTable.sortOrder), asc(siteProductsTable.createdAt));
@@ -26,6 +32,9 @@ router.post("/admin/products", requireAdminAuth, async (req, res) => {
         photos: JSON.stringify(product.photos || []),
         colorways: typeof product.colorways === "string" ? product.colorways : JSON.stringify(product.colorways || []),
         price: String(product.price),
+        discountEnabled: Boolean(product.discountEnabled),
+        discountPercentage: normalizeDiscountPercentage(product.discountPercentage),
+        discountLabel: String(product.discountLabel || "DESCUENTO").trim() || "DESCUENTO",
         sizes: JSON.stringify(product.sizes || []),
         unavailableSizes: JSON.stringify(product.unavailableSizes || []),
         category: product.category,
@@ -44,6 +53,9 @@ router.post("/admin/products", requireAdminAuth, async (req, res) => {
           photos: JSON.stringify(product.photos || []),
           colorways: typeof product.colorways === "string" ? product.colorways : JSON.stringify(product.colorways || []),
           price: String(product.price),
+          discountEnabled: Boolean(product.discountEnabled),
+          discountPercentage: normalizeDiscountPercentage(product.discountPercentage),
+          discountLabel: String(product.discountLabel || "DESCUENTO").trim() || "DESCUENTO",
           sizes: JSON.stringify(product.sizes || []),
           unavailableSizes: JSON.stringify(product.unavailableSizes || []),
           category: product.category,

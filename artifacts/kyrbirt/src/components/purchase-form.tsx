@@ -15,7 +15,6 @@ import {
   Select, SelectContent, SelectItem, SelectTrigger, SelectValue,
 } from "@/components/ui/select";
 import { motion, AnimatePresence } from "framer-motion";
-import { useSiteSettings } from "@/hooks/use-site-settings";
 import { formatPrice, getDiscountedPrice, getDiscountPercentage, hasActiveDiscount } from "@/lib/pricing";
 
 const formSchema = z.object({
@@ -40,10 +39,9 @@ interface PurchaseFormProps {
 export function PurchaseForm({ product, isOpen, onClose, onBack, initialSize, initialColor }: PurchaseFormProps) {
   const [isSuccess, setIsSuccess] = useState(false);
   const [isSending, setIsSending] = useState(false);
-  const { settings } = useSiteSettings();
-  const discountedPrice = getDiscountedPrice(product.price, settings);
-  const discountActive = hasActiveDiscount(product.price, settings);
-  const discountPercentage = getDiscountPercentage(settings);
+  const discountedPrice = getDiscountedPrice(product.price, product);
+  const discountActive = hasActiveDiscount(product.price, product);
+  const discountPercentage = getDiscountPercentage(product);
 
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
@@ -156,7 +154,7 @@ export function PurchaseForm({ product, isOpen, onClose, onBack, initialSize, in
                   <span className={discountActive ? "text-primary" : ""}>{formatPrice(discountedPrice)}</span>
                   {discountActive && (
                     <span className="block text-[10px] tracking-widest text-primary uppercase">
-                      {settings.discount_label || "DESCUENTO"} · {discountPercentage}%
+                      {product.discountLabel || "DESCUENTO"} · {discountPercentage}%
                     </span>
                   )}
                 </span>

@@ -2,7 +2,6 @@ import { motion } from "framer-motion";
 import { Link } from "wouter";
 import { useDrops } from "@/hooks/use-drops";
 import { useSiteSettings } from "@/hooks/use-site-settings";
-import { HERO_IMAGE_URL } from "@/lib/assets";
 
 const FF = "'FranklinGothic', 'Arial Narrow', sans-serif";
 
@@ -18,14 +17,14 @@ export function Hero() {
     >
       <div className="absolute inset-0 bg-black/40 z-10" />
 
-      <div className="absolute inset-[24px] z-0 overflow-hidden">
-        <img
-          src={HERO_IMAGE_URL}
-          alt="KYRBIRT background"
-          loading="eager"
-          className="w-full h-full object-cover"
-          style={{ filter: "grayscale(100%) brightness(1.2)" }}
-        />
+      <div
+        className="absolute inset-[24px] z-0 overflow-hidden bg-[#0b0b0b]"
+        style={{
+          backgroundImage:
+            "radial-gradient(circle at 20% 30%, rgba(255,255,255,.09), transparent 32%), radial-gradient(circle at 78% 68%, rgba(255,255,255,.06), transparent 28%), linear-gradient(135deg, #151515 0%, #050505 52%, #111 100%)",
+        }}
+      >
+        <div className="absolute inset-0 opacity-20 bg-[linear-gradient(90deg,transparent_49.5%,rgba(255,255,255,.12)_50%,transparent_50.5%)] bg-[length:22%_100%]" />
       </div>
 
       <div className="pointer-events-none fixed inset-0 z-50 h-full w-full opacity-[0.07]"

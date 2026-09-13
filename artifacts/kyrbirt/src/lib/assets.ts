@@ -5,9 +5,8 @@ const baseUrl = import.meta.env.BASE_URL.endsWith("/")
 const publicAsset = (fileName: string) => `${baseUrl}${fileName}`;
 
 export const BRAND_LOGO_URL = publicAsset("logo.gif");
-export const HERO_IMAGE_URL = publicAsset("opengraph.jpg");
 export const FAM_FALLBACK_URL = publicAsset("fam-collage.png");
-export const PRODUCT_FALLBACK_URL = HERO_IMAGE_URL;
+export const PRODUCT_FALLBACK_URL = publicAsset("product-placeholder.svg");
 
 const BLOCKED_CLOUDINARY_PREFIX =
   "https://res.cloudinary.com/dwcjuvdtn/image/upload/";

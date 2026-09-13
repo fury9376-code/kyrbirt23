@@ -20,11 +20,8 @@ const SIZE_GUIDE_DEFAULT = JSON.stringify([
 const DEFAULTS: Record<string, string> = {
   drop_name: "DROP 5",
   drop_target_date: "2026-05-08T23:00:00.000Z",
-  drop_bg_image: "/opengraph.jpg",
+  drop_bg_image: "",
   drop_subtitle: "Viernes 8 de Mayo — 20:00 hs Argentina",
-  discount_enabled: "false",
-  discount_percentage: "0",
-  discount_label: "DESCUENTO",
   footer_description: "Argentine streetwear brand. Built around street culture, local artists, and limited drops. Real recognizes real.",
   footer_instagram: "https://www.instagram.com/kyrbirt/",
   footer_whatsapp: "https://wa.me/2235744381",
@@ -42,19 +39,12 @@ const DEFAULTS: Record<string, string> = {
 
 function normalizeSettingValue(key: string, value: unknown): string {
   const raw = String(value ?? "");
-  if (key === "discount_enabled") return raw === "true" ? "true" : "false";
-  if (key === "discount_percentage") {
-    const percentage = Number(raw);
-    if (!Number.isFinite(percentage)) return "0";
-    return String(Math.min(100, Math.max(0, Math.round(percentage))));
-  }
-  if (key === "discount_label") return raw.trim() || "DESCUENTO";
   return raw;
 }
 
 function replaceBlockedMedia(settings: Record<string, string>) {
   if (settings.drop_bg_image.startsWith(BLOCKED_CLOUDINARY_PREFIX)) {
-    settings.drop_bg_image = "/opengraph.jpg";
+    settings.drop_bg_image = "";
   }
   try {
     const photos = JSON.parse(settings.fam_photos);

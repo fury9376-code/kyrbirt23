@@ -6,7 +6,7 @@ import { Textarea } from "@/components/ui/textarea";
 import {
   Lock, LogOut, RefreshCw, ArrowLeft, ShoppingBag, Clock, Wrench, AlignLeft,
   Plus, Trash2, Save, Eye, EyeOff, Package, ChevronDown, ChevronUp, X,
-  Phone, Ruler, Percent
+  Phone, Ruler
 } from "lucide-react";
 import { Link } from "wouter";
 import { type Product, type Colorway } from "@/data/products";
@@ -30,10 +30,11 @@ type ApiProduct = {
   price: string; sizes: string; unavailableSizes: string; category: string;
   subcategory: string | null; locked: boolean; available: boolean;
   soldOut: boolean; stock: number | null; sortOrder: number;
+  discountEnabled: boolean; discountPercentage: number; discountLabel: string;
 };
 
 type Settings = Record<string, string>;
-type Tab = "orders" | "products" | "drop" | "discount" | "maintenance" | "footer" | "fam" | "contacto" | "talles";
+type Tab = "orders" | "products" | "drop" | "maintenance" | "footer" | "fam" | "contacto" | "talles";
 
 let _sessionPassword = "";
 
@@ -239,6 +240,7 @@ type ProductDraft = {
   photos: string[]; colorways: Colorway[]; price: string;
   sizes: string[]; category: string; subcategory: string;
   locked: boolean; available: boolean; soldOut: boolean; stock: string; sortOrder: number;
+  discountEnabled: boolean; discountPercentage: string; discountLabel: string;
 };
 
 function emptyDraft(sortOrder = 0): ProductDraft {
@@ -247,6 +249,7 @@ function emptyDraft(sortOrder = 0): ProductDraft {
     colorways: [{ name: "", sizes: [], unavailableSizes: [], soldOut: false }],
     price: "0", sizes: ["S", "M", "L"], category: "Remeras", subcategory: "",
     locked: false, available: true, soldOut: false, stock: "", sortOrder,
+    discountEnabled: false, discountPercentage: "0", discountLabel: "DESCUENTO",
   };
 }
 
@@ -276,6 +279,9 @@ function productToApiDraft(p: ApiProduct): ProductDraft {
     soldOut: p.soldOut,
     stock: p.stock != null ? String(p.stock) : "",
     sortOrder: p.sortOrder,
+    discountEnabled: p.discountEnabled,
+    discountPercentage: String(p.discountPercentage ?? 0),
+    discountLabel: p.discountLabel || "DESCUENTO",
   };
 }
 
@@ -361,6 +367,42 @@ function ProductForm({ draft, onChange, onSave, onDelete, saving, isNew }: {
           <button onClick={() => set("photos", addItem(draft.photos))} className="text-xs tracking-widest uppercase text-muted-foreground hover:text-primary flex items-center gap-1"><Plus size={12} /> Agregar foto</button>
         </div>
       </Field>
+
+      <div className="border border-border bg-background p-4 space-y-4">
+        <label className="flex items-center gap-3 cursor-pointer select-none">
+          <input
+            type="checkbox"
+            checked={draft.discountEnabled}
+            onChange={(e) => set("discountEnabled", e.target.checked)}
+            className="w-4 h-4 accent-primary"
+          />
+          <span className="text-sm tracking-widest uppercase">Descuento activo para esta prenda</span>
+        </label>
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <Field label="Porcentaje de descuento">
+            <div className="flex items-center gap-2">
+              <Input
+                className="rounded-none"
+                type="number"
+                min="0"
+                max="100"
+                step="1"
+                value={draft.discountPercentage}
+                onChange={(e) => set("discountPercentage", e.target.value)}
+              />
+              <span className="font-mono">%</span>
+            </div>
+          </Field>
+          <Field label="Texto de la promoción">
+            <Input
+              className="rounded-none"
+              value={draft.discountLabel}
+              onChange={(e) => set("discountLabel", e.target.value)}
+              placeholder="DESCUENTO"
+            />
+          </Field>
+        </div>
+      </div>
 
       <Field label="Talles base del producto (plantilla para los colores)">
         <div className="flex flex-wrap gap-2 mb-2">
@@ -466,6 +508,7 @@ function ProductsTab() {
           ...draft,
           colorways: JSON.stringify(draft.colorways),
           stock: draft.stock !== "" ? Number(draft.stock) : null,
+          discountPercentage: Math.min(100, Math.max(0, Math.round(Number(draft.discountPercentage) || 0))),
         }),
       });
       showToast("Guardado ✓");
@@ -496,6 +539,7 @@ function ProductsTab() {
           ...newDraft,
           colorways: JSON.stringify(newDraft.colorways),
           stock: newDraft.stock !== "" ? Number(newDraft.stock) : null,
+          discountPercentage: Math.min(100, Math.max(0, Math.round(Number(newDraft.discountPercentage) || 0))),
         }),
       });
       showToast("Producto creado ✓");
@@ -557,6 +601,11 @@ function ProductsTab() {
                 </div>
                 <div className="flex items-center gap-3 shrink-0 ml-4">
                   {p.soldOut && <span className="text-xs px-2 py-0.5 border border-destructive/40 text-destructive">SOLD OUT</span>}
+                  {p.discountEnabled && p.discountPercentage > 0 && (
+                    <span className="text-xs px-2 py-0.5 border border-primary/40 text-primary">
+                      -{p.discountPercentage}%
+                    </span>
+                  )}
                   {colorways.some((c) => c.soldOut) && !p.soldOut && (
                     <span className="text-xs px-2 py-0.5 border border-destructive/30 text-destructive/70">Colores S.O.</span>
                   )}
@@ -650,95 +699,6 @@ function DropTab({ settings, onSaved }: { settings: Settings; onSaved: () => voi
           <img src={form.drop_bg_image} alt="preview" className="mt-3 h-32 w-full object-cover opacity-70" />
         )}
       </Field>
-      <SaveBtn loading={saving} onClick={save} />
-    </div>
-  );
-}
-
-// ─── Tab: Descuentos ───────────────────────────────────────────────────────────
-function DiscountTab({ settings, onSaved }: { settings: Settings; onSaved: () => void }) {
-  const [form, setForm] = useState({
-    discount_enabled: settings.discount_enabled === "true",
-    discount_percentage: settings.discount_percentage ?? "0",
-    discount_label: settings.discount_label ?? "DESCUENTO",
-  });
-  const [saving, setSaving] = useState(false);
-
-  useEffect(() => {
-    setForm({
-      discount_enabled: settings.discount_enabled === "true",
-      discount_percentage: settings.discount_percentage ?? "0",
-      discount_label: settings.discount_label ?? "DESCUENTO",
-    });
-  }, [settings]);
-
-  const save = async () => {
-    setSaving(true);
-    const percentage = Math.min(100, Math.max(0, Math.round(Number(form.discount_percentage) || 0)));
-    try {
-      await adminFetch("/api/admin/settings/batch", {
-        method: "POST",
-        body: JSON.stringify({
-          discount_enabled: String(form.discount_enabled),
-          discount_percentage: String(percentage),
-          discount_label: form.discount_label.trim() || "DESCUENTO",
-        }),
-      });
-      setForm((current) => ({ ...current, discount_percentage: String(percentage) }));
-      onSaved();
-    } finally {
-      setSaving(false);
-    }
-  };
-
-  return (
-    <div className="space-y-6 max-w-lg">
-      <div>
-        <p className="text-sm text-muted-foreground tracking-wide">
-          Aplicá una promoción general a todos los productos con precio disponible en la tienda.
-        </p>
-        <p className="text-xs text-muted-foreground mt-2">
-          El precio original se conserva tachado y el precio final se envía también en cada pedido.
-        </p>
-      </div>
-
-      <label className="flex items-center gap-3 border border-border bg-card p-4 cursor-pointer select-none">
-        <input
-          type="checkbox"
-          checked={form.discount_enabled}
-          onChange={(e) => setForm((current) => ({ ...current, discount_enabled: e.target.checked }))}
-          className="w-4 h-4 accent-primary"
-        />
-        <span className="text-sm tracking-widest uppercase">Descuento activo</span>
-      </label>
-
-      <Field label="Porcentaje de descuento">
-        <div className="flex items-center gap-2">
-          <Input
-            className="rounded-none"
-            type="number"
-            min="0"
-            max="100"
-            step="1"
-            value={form.discount_percentage}
-            onChange={(e) => setForm((current) => ({ ...current, discount_percentage: e.target.value }))}
-            placeholder="10"
-          />
-          <span className="font-mono text-lg">%</span>
-        </div>
-        <p className="text-xs text-muted-foreground mt-1">Acepta valores entre 0% y 100%.</p>
-      </Field>
-
-      <Field label="Texto de la promoción">
-        <Input
-          className="rounded-none"
-          value={form.discount_label}
-          onChange={(e) => setForm((current) => ({ ...current, discount_label: e.target.value }))}
-          placeholder="DESCUENTO"
-        />
-        <p className="text-xs text-muted-foreground mt-1">Se muestra junto al precio final en la tienda.</p>
-      </Field>
-
       <SaveBtn loading={saving} onClick={save} />
     </div>
   );
@@ -1118,7 +1078,6 @@ const TABS: { id: Tab; label: string; icon: React.ReactNode }[] = [
   { id: "orders", label: "ÓRDENES", icon: <ShoppingBag size={14} /> },
   { id: "products", label: "PRODUCTOS", icon: <Package size={14} /> },
   { id: "drop", label: "DROP/TIMER", icon: <Clock size={14} /> },
-  { id: "discount", label: "DESCUENTOS", icon: <Percent size={14} /> },
   { id: "fam", label: "FAM", icon: <AlignLeft size={14} /> },
   { id: "contacto", label: "CONTACTO", icon: <Phone size={14} /> },
   { id: "talles", label: "GUÍA TALLES", icon: <Ruler size={14} /> },
@@ -1236,7 +1195,6 @@ export default function Admin() {
                 {activeTab === "orders" && <OrdersTab />}
                 {activeTab === "products" && <ProductsTab />}
                 {activeTab === "drop" && <DropTab settings={settings} onSaved={fetchSettings} />}
-                {activeTab === "discount" && <DiscountTab settings={settings} onSaved={fetchSettings} />}
                 {activeTab === "fam" && <FamTab settings={settings} onSaved={fetchSettings} />}
                 {activeTab === "contacto" && <ContactoTab settings={settings} onSaved={fetchSettings} />}
                 {activeTab === "talles" && <SizeGuideTab settings={settings} onSaved={fetchSettings} />}

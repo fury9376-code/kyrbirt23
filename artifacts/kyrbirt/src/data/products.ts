@@ -12,6 +12,9 @@ export type Product = {
   description: string;
   colorways: Colorway[];
   price: number | 'SOLD OUT';
+  discountEnabled?: boolean;
+  discountPercentage?: number;
+  discountLabel?: string;
   sizes: string[];
   category: 'Remeras' | 'Pantalones' | 'Accesorios' | 'Hoodies';
   subcategory?: string;

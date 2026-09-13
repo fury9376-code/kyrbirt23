@@ -2,7 +2,7 @@ import { motion, AnimatePresence } from "framer-motion";
 import { useDrops } from "@/hooks/use-drops";
 import { useSiteSettings } from "@/hooks/use-site-settings";
 import { useSiteProducts } from "@/hooks/use-site-products";
-import { HERO_IMAGE_URL, resolveMediaUrl } from "@/lib/assets";
+import { resolveMediaUrl } from "@/lib/assets";
 
 const FF = "'FranklinGothic', 'Arial Narrow', sans-serif";
 
@@ -30,6 +30,7 @@ export function Drops() {
   const { products } = useSiteProducts();
 
   const mafiasTee = products.find((p) => p.id === "mafias-tee");
+  const dropImage = resolveMediaUrl(settings.drop_bg_image, "");
 
   const handleOpenDropProduct = () => {
     if (unlocked && mafiasTee) {
@@ -46,7 +47,9 @@ export function Drops() {
       <div
         className="absolute inset-0 bg-cover bg-center bg-no-repeat transition-all duration-1000"
         style={{
-          backgroundImage: `url(${resolveMediaUrl(settings.drop_bg_image, HERO_IMAGE_URL)})`,
+          backgroundImage: dropImage
+            ? `url(${dropImage})`
+            : "radial-gradient(circle at 35% 25%, #333 0%, #111 36%, #050505 75%)",
           filter: unlocked ? "blur(0px) grayscale(0%)" : "blur(12px) grayscale(60%)",
           transform: "scale(1.05)",
         }}

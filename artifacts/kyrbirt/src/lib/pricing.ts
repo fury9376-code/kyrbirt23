@@ -1,29 +1,29 @@
-export type DiscountSettings = {
-  discount_enabled?: string;
-  discount_percentage?: string;
-  discount_label?: string;
+export type ProductDiscount = {
+  discountEnabled?: boolean;
+  discountPercentage?: number;
+  discountLabel?: string;
 };
 
-export function getDiscountPercentage(settings: DiscountSettings): number {
-  if (settings.discount_enabled !== "true") return 0;
-  const percentage = Number(settings.discount_percentage);
+export function getDiscountPercentage(product: ProductDiscount): number {
+  if (!product.discountEnabled) return 0;
+  const percentage = Number(product.discountPercentage);
   if (!Number.isFinite(percentage)) return 0;
   return Math.min(100, Math.max(0, percentage));
 }
 
 export function hasActiveDiscount(
   price: number | "SOLD OUT",
-  settings: DiscountSettings,
+  product: ProductDiscount,
 ): boolean {
-  return typeof price === "number" && getDiscountPercentage(settings) > 0;
+  return typeof price === "number" && getDiscountPercentage(product) > 0;
 }
 
 export function getDiscountedPrice(
   price: number | "SOLD OUT",
-  settings: DiscountSettings,
+  product: ProductDiscount,
 ): number | "SOLD OUT" {
   if (typeof price !== "number") return price;
-  const percentage = getDiscountPercentage(settings);
+  const percentage = getDiscountPercentage(product);
   return Math.max(0, Math.round(price * (1 - percentage / 100)));
 }
 

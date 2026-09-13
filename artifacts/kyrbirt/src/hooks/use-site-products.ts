@@ -9,6 +9,9 @@ type ApiProduct = {
   photos: string;
   colorways: string;
   price: string;
+  discountEnabled: boolean;
+  discountPercentage: number;
+  discountLabel: string;
   sizes: string;
   unavailableSizes: string;
   category: string;
@@ -54,6 +57,9 @@ function parseApiProduct(p: ApiProduct): Product {
     ),
     colorways: parseColorways(p.colorways, defaultSizes, legacyUnavailable),
     price: price as Product["price"],
+    discountEnabled: p.discountEnabled,
+    discountPercentage: p.discountPercentage,
+    discountLabel: p.discountLabel,
     sizes: defaultSizes,
     category: p.category as Product["category"],
     subcategory: p.subcategory ?? undefined,
