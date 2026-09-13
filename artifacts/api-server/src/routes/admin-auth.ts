@@ -1,4 +1,12 @@
-import type { Request, Response, NextFunction } from "express";
+type AdminAuthRequest = {
+  headers: Record<string, string | string[] | undefined>;
+};
+
+type AdminAuthResponse = {
+  status(code: number): {
+    json(body: unknown): unknown;
+  };
+};
 
 /**
  * Fail-closed admin auth middleware.
@@ -6,7 +14,11 @@ import type { Request, Response, NextFunction } from "express";
  * - 401 if header is missing or wrong
  * - passes through if correct
  */
-export function requireAdminAuth(req: Request, res: Response, next: NextFunction) {
+export function requireAdminAuth(
+  req: AdminAuthRequest,
+  res: AdminAuthResponse,
+  next: () => void,
+) {
   const configured = process.env["ADMIN_PASSWORD"];
   if (!configured) {
     return res.status(503).json({ error: "Admin auth not configured — set ADMIN_PASSWORD secret" });
