@@ -19,7 +19,7 @@ export function Footer() {
           {/* Col 1: Brand */}
           <div>
             <img 
-              src="https://imgur.com/nxUN6l5" 
+              src="https://res.cloudinary.com/dwcjuvdtn/image/upload/f_auto,q_auto/kyrbirt_logo_negro_mvptuz" 
               alt="KYRBIRT Logo" 
               className="h-8 invert mb-6"
             />

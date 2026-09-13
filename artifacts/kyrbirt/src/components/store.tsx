@@ -7,6 +7,7 @@ import { useSiteSettings } from "@/hooks/use-site-settings";
 import { ProductModal } from "./product-modal";
 import { Badge } from "@/components/ui/badge";
 import { useDrops } from "@/hooks/use-drops";
+import { formatPrice, getDiscountedPrice, getDiscountPercentage, hasActiveDiscount } from "@/lib/pricing";
 
 const CATEGORIES = ["Remeras", "Pantalones", "Accesorios", "Hoodies"];
 const PANTALONES_SUBCATS = ["Todos", "Shorts", "Pantalones"];
@@ -39,8 +40,8 @@ export function Store() {
         setSelectedProduct(product);
       }
     };
-    window.addEventListener("open-mafias-tee", handler);
-    return () => window.removeEventListener("open-mafias-tee", handler);
+    window.addEventListener("open-drop-product", handler);
+    return () => window.removeEventListener("open-drop-product", handler);
   }, []);
 
   const baseFiltered = products.filter((p) => {
@@ -174,6 +175,9 @@ export function Store() {
             {sortedProducts.map((product) => {
               const isLocked = product.locked && !dropsUnlocked;
               const soldOut = isProductSoldOut(product);
+              const discountedPrice = getDiscountedPrice(product.price, settings);
+              const discountActive = hasActiveDiscount(product.price, settings);
+              const discountPercentage = getDiscountPercentage(settings);
               return (
                 <motion.div
                   layout
@@ -187,32 +191,14 @@ export function Store() {
                   data-testid={`card-product-${product.id}`}
                 >
                   <div className="relative aspect-[3/4] overflow-hidden bg-card mb-2 md:mb-4">
-                    {product.photos[0] ? (
-                      <img
-                        src={product.photos[0]}
-                        alt={product.name}
-                        loading="lazy"
-                        className={`object-cover w-full h-full transition-transform duration-700 ${
-                          isLocked ? "blur-md scale-105" : "group-hover:scale-105"
-                        }`}
-                        onError={(e) => {
-                          e.currentTarget.style.display = "none";
-                          const placeholder = e.currentTarget.nextElementSibling as HTMLElement | null;
-                          if (placeholder) placeholder.style.display = "flex";
-                        }}
-                      />
-                    ) : null}
-                    <div
-                      className="absolute inset-0 items-center justify-center bg-card/80 text-muted-foreground flex-col gap-2"
-                      style={{ display: product.photos[0] ? "none" : "flex" }}
-                    >
-                      <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1" opacity="0.4">
-                        <rect x="3" y="3" width="18" height="18" rx="2" />
-                        <circle cx="8.5" cy="8.5" r="1.5" />
-                        <path d="M21 15l-5-5L5 21" />
-                      </svg>
-                      <span className="text-[10px] tracking-widest uppercase opacity-40">Sin imagen</span>
-                    </div>
+                    <img
+                      src={product.photos[0]}
+                      alt={product.name}
+                      loading="lazy"
+                      className={`object-cover w-full h-full transition-transform duration-700 ${
+                        isLocked ? "blur-md scale-105" : "group-hover:scale-105"
+                      }`}
+                    />
 
                     {isLocked && (
                       <div className="absolute inset-0 bg-black/50 flex flex-col items-center justify-center">
@@ -266,13 +252,21 @@ export function Store() {
                         <span className="text-xs text-muted-foreground tracking-widest uppercase">Pronto</span>
                       ) : soldOut ? (
                         <span className="font-bold text-destructive text-sm">SOLD OUT</span>
-                      ) : (
-                        <span className="font-mono text-sm md:text-lg">
-                          ${typeof product.price === "number"
-                            ? product.price.toLocaleString("es-AR")
-                            : product.price}
-                        </span>
-                      )}
+                      ) : discountActive && typeof product.price === "number" ? (
+                          <div className="flex flex-col items-end">
+                            <span className="font-mono text-[10px] md:text-xs text-muted-foreground line-through">
+                              {formatPrice(product.price)}
+                            </span>
+                            <span className="font-mono text-sm md:text-lg text-primary">
+                              {formatPrice(discountedPrice)}
+                            </span>
+                            <span className="text-[9px] md:text-[10px] tracking-widest text-primary uppercase">
+                              {settings.discount_label || "DESCUENTO"} · {discountPercentage}%
+                            </span>
+                          </div>
+                        ) : (
+                          <span className="font-mono text-sm md:text-lg">{formatPrice(product.price)}</span>
+                        )}
                     </div>
                   </div>
                 </motion.div>

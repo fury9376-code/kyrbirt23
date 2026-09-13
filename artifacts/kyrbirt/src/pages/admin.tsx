@@ -6,7 +6,7 @@ import { Textarea } from "@/components/ui/textarea";
 import {
   Lock, LogOut, RefreshCw, ArrowLeft, ShoppingBag, Clock, Wrench, AlignLeft,
   Plus, Trash2, Save, Eye, EyeOff, Package, ChevronDown, ChevronUp, X,
-  Phone, Ruler
+  Phone, Ruler, Percent
 } from "lucide-react";
 import { Link } from "wouter";
 import { type Product, type Colorway } from "@/data/products";
@@ -32,7 +32,7 @@ type ApiProduct = {
 };
 
 type Settings = Record<string, string>;
-type Tab = "orders" | "products" | "drop" | "maintenance" | "footer" | "fam" | "contacto" | "talles";
+type Tab = "orders" | "products" | "drop" | "discount" | "maintenance" | "footer" | "fam" | "contacto" | "talles";
 
 let _sessionPassword = "";
 
@@ -53,7 +53,6 @@ async function seedProductsIfEmpty(apiProducts: ApiProduct[]) {
         ...p,
         price: String(p.price),
         colorways: JSON.stringify(p.colorways),
-        sizeGuide: JSON.stringify(p.sizeGuide || []),
         sortOrder: i,
       }),
     });
@@ -234,14 +233,11 @@ function ColorwayEditor({
 }
 
 // ─── Product Draft ────────────────────────────────────────────────────────────
-type SizeGuideRow = { size: string; chest: string; length: string };
-
 type ProductDraft = {
   id: string; name: string; description: string;
   photos: string[]; colorways: Colorway[]; price: string;
   sizes: string[]; category: string; subcategory: string;
   locked: boolean; available: boolean; soldOut: boolean; stock: string; sortOrder: number;
-  sizeGuide: SizeGuideRow[];
 };
 
 function emptyDraft(sortOrder = 0): ProductDraft {
@@ -250,7 +246,6 @@ function emptyDraft(sortOrder = 0): ProductDraft {
     colorways: [{ name: "", sizes: [], unavailableSizes: [], soldOut: false }],
     price: "0", sizes: ["S", "M", "L"], category: "Remeras", subcategory: "",
     locked: false, available: true, soldOut: false, stock: "", sortOrder,
-    sizeGuide: [],
   };
 }
 
@@ -269,11 +264,6 @@ function parseColorways(raw: string, defaultSizes: string[]): Colorway[] {
 
 function productToApiDraft(p: ApiProduct): ProductDraft {
   const defaultSizes = JSON.parse(p.sizes || "[]");
-  let sizeGuide: SizeGuideRow[] = [];
-  try {
-    const parsed = JSON.parse((p as any).sizeGuide || "[]");
-    sizeGuide = Array.isArray(parsed) ? parsed : [];
-  } catch { sizeGuide = []; }
   return {
     id: p.id, name: p.name, description: p.description,
     photos: JSON.parse(p.photos || "[]"),
@@ -285,7 +275,6 @@ function productToApiDraft(p: ApiProduct): ProductDraft {
     soldOut: p.soldOut,
     stock: p.stock != null ? String(p.stock) : "",
     sortOrder: p.sortOrder,
-    sizeGuide,
   };
 }
 
@@ -417,57 +406,6 @@ function ProductForm({ draft, onChange, onSave, onDelete, saving, isNew }: {
         </Field>
       </div>
 
-      <div>
-        <div className="flex items-center justify-between mb-3">
-          <label className="text-xs tracking-widest uppercase text-muted-foreground flex items-center gap-1.5">
-            <Ruler size={12} /> Guía de Talles de esta prenda ({draft.sizeGuide.length} filas)
-          </label>
-          <button
-            onClick={() => set("sizeGuide", [...draft.sizeGuide, { size: "", chest: "", length: "" }])}
-            className="text-xs tracking-widest uppercase text-muted-foreground hover:text-primary flex items-center gap-1"
-          >
-            <Plus size={12} /> Agregar fila
-          </button>
-        </div>
-        {draft.sizeGuide.length === 0 ? (
-          <p className="text-xs text-muted-foreground py-2">Sin guía de talles configurada — se usará la guía general del sitio.</p>
-        ) : (
-          <div className="space-y-2">
-            <div className="grid grid-cols-[1fr_1fr_1fr_auto] gap-2 text-[10px] tracking-widest uppercase text-muted-foreground mb-1 px-1">
-              <span>Talle</span><span>Sisa (cm)</span><span>Largo (cm)</span><span></span>
-            </div>
-            {draft.sizeGuide.map((row, i) => (
-              <div key={i} className="grid grid-cols-[1fr_1fr_1fr_auto] gap-2 items-center">
-                <Input
-                  className="rounded-none h-8 text-sm text-center"
-                  value={row.size}
-                  onChange={(e) => set("sizeGuide", draft.sizeGuide.map((r, j) => j === i ? { ...r, size: e.target.value } : r))}
-                  placeholder="S"
-                />
-                <Input
-                  className="rounded-none h-8 text-sm text-center"
-                  value={row.chest}
-                  onChange={(e) => set("sizeGuide", draft.sizeGuide.map((r, j) => j === i ? { ...r, chest: e.target.value } : r))}
-                  placeholder="50"
-                />
-                <Input
-                  className="rounded-none h-8 text-sm text-center"
-                  value={row.length}
-                  onChange={(e) => set("sizeGuide", draft.sizeGuide.map((r, j) => j === i ? { ...r, length: e.target.value } : r))}
-                  placeholder="70"
-                />
-                <button
-                  onClick={() => set("sizeGuide", draft.sizeGuide.filter((_, j) => j !== i))}
-                  className="p-1.5 border border-border hover:bg-destructive/10 text-destructive"
-                >
-                  <X size={12} />
-                </button>
-              </div>
-            ))}
-          </div>
-        )}
-      </div>
-
       <div className="flex gap-3 pt-2">
         <SaveBtn loading={saving} onClick={onSave} label={isNew ? "CREAR PRODUCTO" : "GUARDAR CAMBIOS"} />
         {!isNew && onDelete && (
@@ -493,23 +431,16 @@ function ProductsTab() {
 
   const showToast = (msg: string) => { setToast(msg); setTimeout(() => setToast(null), 2500); };
 
-  const [loadError, setLoadError] = useState<string | null>(null);
-
   const loadProducts = async () => {
     setLoading(true);
-    setLoadError(null);
     try {
       const res = await fetch("/api/products");
-      if (!res.ok) throw new Error(`API error ${res.status}`);
-      const data = await res.json();
-      const rows: ApiProduct[] = Array.isArray(data) ? data : [];
+      const rows: ApiProduct[] = await res.json();
       if (rows.length === 0 && !seeded) {
         await seedProductsIfEmpty(rows);
         setSeeded(true);
         const res2 = await fetch("/api/products");
-        if (!res2.ok) throw new Error(`API error ${res2.status}`);
-        const data2 = await res2.json();
-        const rows2: ApiProduct[] = Array.isArray(data2) ? data2 : [];
+        const rows2: ApiProduct[] = await res2.json();
         setApiProducts(rows2);
         const d: Record<string, ProductDraft> = {};
         rows2.forEach((p) => { d[p.id] = productToApiDraft(p); });
@@ -520,8 +451,6 @@ function ProductsTab() {
         rows.forEach((p) => { d[p.id] = productToApiDraft(p); });
         setDrafts(d);
       }
-    } catch (e: any) {
-      setLoadError(e?.message ?? "Error al cargar productos");
     } finally { setLoading(false); }
   };
 
@@ -535,7 +464,6 @@ function ProductsTab() {
         body: JSON.stringify({
           ...draft,
           colorways: JSON.stringify(draft.colorways),
-          sizeGuide: JSON.stringify(draft.sizeGuide),
           stock: draft.stock !== "" ? Number(draft.stock) : null,
         }),
       });
@@ -566,7 +494,6 @@ function ProductsTab() {
         body: JSON.stringify({
           ...newDraft,
           colorways: JSON.stringify(newDraft.colorways),
-          sizeGuide: JSON.stringify(newDraft.sizeGuide),
           stock: newDraft.stock !== "" ? Number(newDraft.stock) : null,
         }),
       });
@@ -577,14 +504,6 @@ function ProductsTab() {
   };
 
   if (loading) return <div className="text-center py-16 text-muted-foreground tracking-widest">Cargando productos...</div>;
-  if (loadError) return (
-    <div className="border border-destructive p-8 text-center space-y-3">
-      <p className="text-destructive text-sm tracking-wider">Error al cargar productos: {loadError}</p>
-      <button onClick={loadProducts} className="flex items-center gap-2 mx-auto px-4 py-2 border border-border hover:bg-muted transition-colors text-sm tracking-wider">
-        <RefreshCw size={14} /> REINTENTAR
-      </button>
-    </div>
-  );
 
   return (
     <div>
@@ -670,7 +589,6 @@ function DropTab({ settings, onSaved }: { settings: Settings; onSaved: () => voi
     drop_target_date: settings.drop_target_date ?? "2026-05-08T23:00:00.000Z",
     drop_bg_image: settings.drop_bg_image ?? "",
     drop_subtitle: settings.drop_subtitle ?? "",
-    hero_bg_image: (settings as any).hero_bg_image ?? "",
   });
   const [saving, setSaving] = useState(false);
   const set = (k: string, v: string) => setForm((f) => ({ ...f, [k]: v }));
@@ -681,7 +599,6 @@ function DropTab({ settings, onSaved }: { settings: Settings; onSaved: () => voi
       drop_target_date: settings.drop_target_date ?? "2026-05-08T23:00:00.000Z",
       drop_bg_image: settings.drop_bg_image ?? "",
       drop_subtitle: settings.drop_subtitle ?? "",
-      hero_bg_image: (settings as any).hero_bg_image ?? "",
     });
   }, [settings]);
 
@@ -722,19 +639,101 @@ function DropTab({ settings, onSaved }: { settings: Settings; onSaved: () => voi
         <Input className="rounded-none" value={form.drop_subtitle} onChange={(e) => set("drop_subtitle", e.target.value)} />
         <p className="text-xs text-muted-foreground mt-1">Ej: "Viernes 8 de Mayo — 20:00 hs Argentina"</p>
       </Field>
-      <Field label="URL Imagen de Fondo del Cronómetro (página Drops)">
+      <Field label="URL Imagen de Fondo del Cronómetro">
         <Input className="rounded-none" value={form.drop_bg_image} onChange={(e) => set("drop_bg_image", e.target.value)} placeholder="https://..." />
         {form.drop_bg_image && (
           <img src={form.drop_bg_image} alt="preview" className="mt-3 h-32 w-full object-cover opacity-70" />
         )}
       </Field>
-      <Field label="URL Imagen de Fondo del Hero (página principal)">
-        <Input className="rounded-none" value={form.hero_bg_image} onChange={(e) => set("hero_bg_image", e.target.value)} placeholder="https://... (subí la imagen a imgur, drive, etc.)" />
-        {form.hero_bg_image && (
-          <img src={form.hero_bg_image} alt="preview" className="mt-3 h-32 w-full object-cover opacity-70" />
-        )}
-        <p className="text-xs text-muted-foreground mt-1">Dejá vacío para usar el fondo oscuro automático. Si usabas Cloudinary, subí la foto a un servicio público (p.ej. imgur.com) y pegá el URL directo.</p>
+      <SaveBtn loading={saving} onClick={save} />
+    </div>
+  );
+}
+
+// ─── Tab: Descuentos ───────────────────────────────────────────────────────────
+function DiscountTab({ settings, onSaved }: { settings: Settings; onSaved: () => void }) {
+  const [form, setForm] = useState({
+    discount_enabled: settings.discount_enabled === "true",
+    discount_percentage: settings.discount_percentage ?? "0",
+    discount_label: settings.discount_label ?? "DESCUENTO",
+  });
+  const [saving, setSaving] = useState(false);
+
+  useEffect(() => {
+    setForm({
+      discount_enabled: settings.discount_enabled === "true",
+      discount_percentage: settings.discount_percentage ?? "0",
+      discount_label: settings.discount_label ?? "DESCUENTO",
+    });
+  }, [settings]);
+
+  const save = async () => {
+    setSaving(true);
+    const percentage = Math.min(100, Math.max(0, Math.round(Number(form.discount_percentage) || 0)));
+    try {
+      await adminFetch("/api/admin/settings/batch", {
+        method: "POST",
+        body: JSON.stringify({
+          discount_enabled: String(form.discount_enabled),
+          discount_percentage: String(percentage),
+          discount_label: form.discount_label.trim() || "DESCUENTO",
+        }),
+      });
+      setForm((current) => ({ ...current, discount_percentage: String(percentage) }));
+      onSaved();
+    } finally {
+      setSaving(false);
+    }
+  };
+
+  return (
+    <div className="space-y-6 max-w-lg">
+      <div>
+        <p className="text-sm text-muted-foreground tracking-wide">
+          Aplicá una promoción general a todos los productos con precio disponible en la tienda.
+        </p>
+        <p className="text-xs text-muted-foreground mt-2">
+          El precio original se conserva tachado y el precio final se envía también en cada pedido.
+        </p>
+      </div>
+
+      <label className="flex items-center gap-3 border border-border bg-card p-4 cursor-pointer select-none">
+        <input
+          type="checkbox"
+          checked={form.discount_enabled}
+          onChange={(e) => setForm((current) => ({ ...current, discount_enabled: e.target.checked }))}
+          className="w-4 h-4 accent-primary"
+        />
+        <span className="text-sm tracking-widest uppercase">Descuento activo</span>
+      </label>
+
+      <Field label="Porcentaje de descuento">
+        <div className="flex items-center gap-2">
+          <Input
+            className="rounded-none"
+            type="number"
+            min="0"
+            max="100"
+            step="1"
+            value={form.discount_percentage}
+            onChange={(e) => setForm((current) => ({ ...current, discount_percentage: e.target.value }))}
+            placeholder="10"
+          />
+          <span className="font-mono text-lg">%</span>
+        </div>
+        <p className="text-xs text-muted-foreground mt-1">Acepta valores entre 0% y 100%.</p>
       </Field>
+
+      <Field label="Texto de la promoción">
+        <Input
+          className="rounded-none"
+          value={form.discount_label}
+          onChange={(e) => setForm((current) => ({ ...current, discount_label: e.target.value }))}
+          placeholder="DESCUENTO"
+        />
+        <p className="text-xs text-muted-foreground mt-1">Se muestra junto al precio final en la tienda.</p>
+      </Field>
+
       <SaveBtn loading={saving} onClick={save} />
     </div>
   );
@@ -1114,6 +1113,7 @@ const TABS: { id: Tab; label: string; icon: React.ReactNode }[] = [
   { id: "orders", label: "ÓRDENES", icon: <ShoppingBag size={14} /> },
   { id: "products", label: "PRODUCTOS", icon: <Package size={14} /> },
   { id: "drop", label: "DROP/TIMER", icon: <Clock size={14} /> },
+  { id: "discount", label: "DESCUENTOS", icon: <Percent size={14} /> },
   { id: "fam", label: "FAM", icon: <AlignLeft size={14} /> },
   { id: "contacto", label: "CONTACTO", icon: <Phone size={14} /> },
   { id: "talles", label: "GUÍA TALLES", icon: <Ruler size={14} /> },
@@ -1124,7 +1124,7 @@ const TABS: { id: Tab; label: string; icon: React.ReactNode }[] = [
 export default function Admin() {
   const [password, setPassword] = useState("");
   const [authed, setAuthed] = useState(false);
-  const [errorMsg, setErrorMsg] = useState<string | null>(null);
+  const [error, setError] = useState(false);
   const [activeTab, setActiveTab] = useState<Tab>("orders");
   const [settings, setSettings] = useState<Settings>({});
 
@@ -1137,7 +1137,6 @@ export default function Admin() {
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
-    setErrorMsg(null);
     try {
       const res = await fetch("/api/admin/verify", {
         method: "POST",
@@ -1147,19 +1146,13 @@ export default function Admin() {
       if (res.ok) {
         _sessionPassword = password;
         setAuthed(true);
-        setErrorMsg(null);
+        setError(false);
         fetchSettings();
-      } else if (res.status === 401) {
-        setErrorMsg("Contraseña incorrecta");
-      } else if (res.status === 503) {
-        setErrorMsg("Error del servidor: ADMIN_PASSWORD no configurado en las variables de entorno");
-      } else if (res.status === 404) {
-        setErrorMsg("Error: el servidor no está desplegado correctamente (ruta no encontrada)");
       } else {
-        setErrorMsg(`Error del servidor (${res.status}) — revisá los logs de Vercel`);
+        setError(true);
       }
     } catch {
-      setErrorMsg("No se pudo conectar con el servidor — verificá que el backend esté desplegado");
+      setError(true);
     }
   };
 
@@ -1201,11 +1194,11 @@ export default function Admin() {
                       type="password"
                       value={password}
                       onChange={(e) => setPassword(e.target.value)}
-                      className={`rounded-none border-border ${errorMsg ? "border-destructive" : ""}`}
+                      className={`rounded-none border-border ${error ? "border-destructive" : ""}`}
                       placeholder="••••••••"
                       data-testid="input-admin-password"
                     />
-                    {errorMsg && <p className="text-destructive text-xs mt-2 tracking-wider">{errorMsg}</p>}
+                    {error && <p className="text-destructive text-xs mt-2 tracking-wider">Contraseña incorrecta</p>}
                   </div>
                   <Button type="submit" className="w-full rounded-none font-display tracking-widest" data-testid="button-admin-login">
                     INGRESAR
@@ -1238,6 +1231,7 @@ export default function Admin() {
                 {activeTab === "orders" && <OrdersTab />}
                 {activeTab === "products" && <ProductsTab />}
                 {activeTab === "drop" && <DropTab settings={settings} onSaved={fetchSettings} />}
+                {activeTab === "discount" && <DiscountTab settings={settings} onSaved={fetchSettings} />}
                 {activeTab === "fam" && <FamTab settings={settings} onSaved={fetchSettings} />}
                 {activeTab === "contacto" && <ContactoTab settings={settings} onSaved={fetchSettings} />}
                 {activeTab === "talles" && <SizeGuideTab settings={settings} onSaved={fetchSettings} />}

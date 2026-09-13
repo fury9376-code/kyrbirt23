@@ -30,9 +30,9 @@ export function Drops() {
 
   const mafiasTee = products.find((p) => p.id === "mafias-tee");
 
-  const handleOpenMafias = () => {
+  const handleOpenDropProduct = () => {
     if (unlocked && mafiasTee) {
-      window.dispatchEvent(new CustomEvent("open-mafias-tee", { detail: mafiasTee }));
+      window.dispatchEvent(new CustomEvent("open-drop-product", { detail: mafiasTee }));
     }
   };
 
@@ -117,12 +117,12 @@ export function Drops() {
               </motion.div>
 
               <button
-                onClick={handleOpenMafias}
+                onClick={handleOpenDropProduct}
                 className="group relative px-10 md:px-14 py-4 md:py-5 bg-white text-black text-xl md:text-2xl tracking-widest overflow-hidden transition-transform active:scale-95"
                 style={{ fontFamily: FF }}
                 data-testid="button-drops-unlock"
               >
-                <span className="relative z-10">VER MAFIAS TEE</span>
+                <span className="relative z-10">VER {settings.drop_name || "DROP"}</span>
                 <div className="absolute inset-0 bg-black/10 -translate-x-full group-hover:translate-x-0 transition-transform duration-300" />
               </button>
 

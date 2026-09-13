@@ -1,45 +1,18 @@
-# =========================
-# Build / output
-# =========================
+# See https://docs.github.com/en/get-started/getting-started-with-git/ignoring-files for more about ignoring files.
+
+# compiled output
 dist
-build
 tmp
 out-tsc
 *.tsbuildinfo
+.expo
+.expo-shared
 
-# =========================
-# Dependencies
-# =========================
+# dependencies
 node_modules
-.pnpm-store
 
-# =========================
-# Replit
-# =========================
-.cache/
-.local/
-.replit
-.replit.nix
-.replitignore
-
-# =========================
-# Logs
-# =========================
-npm-debug.log
-yarn-error.log
-pnpm-debug.log*
-testem.log
-
-# =========================
-# IDEs / Editors
-# =========================
-.vscode/*
-!.vscode/settings.json
-!.vscode/tasks.json
-!.vscode/launch.json
-!.vscode/extensions.json
-
-.idea
+# IDEs and editors
+/.idea
 .project
 .classpath
 .c9/
@@ -47,63 +20,40 @@ testem.log
 .settings/
 *.sublime-workspace
 
-# =========================
-# System files
-# =========================
+# IDE - VSCode
+.vscode/*
+!.vscode/settings.json
+!.vscode/tasks.json
+!.vscode/launch.json
+!.vscode/extensions.json
+
+# misc
+/.sass-cache
+/connect.lock
+/coverage
+/libpeerconnection.log
+npm-debug.log
+yarn-error.log
+testem.log
+/typings
+
+# System Files
 .DS_Store
 Thumbs.db
 
-# =========================
-# Cache / temp
-# =========================
-.sass-cache
-coverage
-connect.lock
-libpeerconnection.log
-typings
+.cursor/rules/nx-rules.mdc
+.github/instructions/nx.instructions.md
 
-# =========================
-# ZIP / backups
-# =========================
-*.zip
-*.rar
-*.7z
-
-# =========================
-# Local artifacts
-# =========================
-.local/
-.migration-backup/
-mockup-sandbox/
-attached_assets/
-
-# =========================
-# GitHub / Cursor
-# =========================
-.cursor/
-.github/instructions/
-
-# =========================
-# Large generated folders
-# =========================
-.local2/
-zipFile/
-# Large files
-*.zip
-.local/
+# Replit
 .cache/
-dist/
-build/
-coverage/
-
-# Replit artifacts
-artifacts/mockup-sandbox/dist/
-artifacts/mockup-sandbox/node_modules/
-artifacts/kyrbirt/dist/
-artifacts/kyrbirt/node_modules/
-
-# binaries
-*.exe
-*.iso
-*.tar
-*.gz
+.local/
+node_modules
+dist
+.cache
+.local
+.zip
+*.zip
+artifacts
+attached_assets
+migration-backup
+pnpm-lock.yaml

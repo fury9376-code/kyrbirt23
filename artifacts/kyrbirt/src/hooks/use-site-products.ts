@@ -1,5 +1,5 @@
 import { useQuery } from "@tanstack/react-query";
-import { products as hardcodedProducts, type Product, type Colorway, type SizeGuideRow } from "@/data/products";
+import { products as hardcodedProducts, type Product, type Colorway } from "@/data/products";
 
 type ApiProduct = {
   id: string;
@@ -10,7 +10,6 @@ type ApiProduct = {
   price: string;
   sizes: string;
   unavailableSizes: string;
-  sizeGuide: string;
   category: string;
   subcategory: string | null;
   locked: boolean;
@@ -24,6 +23,7 @@ function parseColorways(raw: string, defaultSizes: string[], legacyUnavailable: 
   try {
     const parsed = JSON.parse(raw || "[]");
     if (!Array.isArray(parsed) || parsed.length === 0) return [];
+
     if (typeof parsed[0] === "string") {
       return (parsed as string[]).map((name) => ({
         name,
@@ -32,6 +32,7 @@ function parseColorways(raw: string, defaultSizes: string[], legacyUnavailable: 
         soldOut: false,
       }));
     }
+
     return parsed as Colorway[];
   } catch {
     return [];
@@ -42,14 +43,6 @@ function parseApiProduct(p: ApiProduct): Product {
   const price = p.price === "SOLD OUT" ? "SOLD OUT" : (Number(p.price) || (p.price as any));
   const defaultSizes = JSON.parse(p.sizes || "[]");
   const legacyUnavailable = JSON.parse(p.unavailableSizes || "[]");
-
-  let sizeGuide: SizeGuideRow[] | undefined;
-  try {
-    const parsed = JSON.parse(p.sizeGuide || "[]");
-    sizeGuide = Array.isArray(parsed) && parsed.length > 0 ? parsed : undefined;
-  } catch {
-    sizeGuide = undefined;
-  }
 
   return {
     id: p.id,
@@ -64,7 +57,6 @@ function parseApiProduct(p: ApiProduct): Product {
     locked: p.locked,
     soldOut: p.soldOut,
     stock: p.stock,
-    sizeGuide,
   };
 }
 

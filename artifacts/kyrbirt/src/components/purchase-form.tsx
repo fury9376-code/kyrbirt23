@@ -15,6 +15,8 @@ import {
   Select, SelectContent, SelectItem, SelectTrigger, SelectValue,
 } from "@/components/ui/select";
 import { motion, AnimatePresence } from "framer-motion";
+import { useSiteSettings } from "@/hooks/use-site-settings";
+import { formatPrice, getDiscountedPrice, getDiscountPercentage, hasActiveDiscount } from "@/lib/pricing";
 
 const formSchema = z.object({
   size: z.string().min(1, { message: "Selecciona un talle" }),
@@ -38,6 +40,10 @@ interface PurchaseFormProps {
 export function PurchaseForm({ product, isOpen, onClose, onBack, initialSize, initialColor }: PurchaseFormProps) {
   const [isSuccess, setIsSuccess] = useState(false);
   const [isSending, setIsSending] = useState(false);
+  const { settings } = useSiteSettings();
+  const discountedPrice = getDiscountedPrice(product.price, settings);
+  const discountActive = hasActiveDiscount(product.price, settings);
+  const discountPercentage = getDiscountPercentage(settings);
 
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
@@ -69,7 +75,7 @@ export function PurchaseForm({ product, isOpen, onClose, onBack, initialSize, in
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           product: product.name,
-          price: product.price,
+          price: discountedPrice,
           ...values,
         }),
       });
@@ -141,8 +147,18 @@ export function PurchaseForm({ product, isOpen, onClose, onBack, initialSize, in
             <motion.div key="form" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="p-6">
               <div className="flex justify-between items-center p-4 bg-muted mb-8 border border-border">
                 <span className="font-bold tracking-wider text-sm">TOTAL A PAGAR</span>
-                <span className="font-mono text-xl">
-                  {typeof product.price === "number" ? `$${product.price.toLocaleString("es-AR")}` : product.price}
+                <span className="font-mono text-xl text-right">
+                  {discountActive && typeof product.price === "number" && (
+                    <span className="block text-sm text-muted-foreground line-through">
+                      {formatPrice(product.price)}
+                    </span>
+                  )}
+                  <span className={discountActive ? "text-primary" : ""}>{formatPrice(discountedPrice)}</span>
+                  {discountActive && (
+                    <span className="block text-[10px] tracking-widest text-primary uppercase">
+                      {settings.discount_label || "DESCUENTO"} · {discountPercentage}%
+                    </span>
+                  )}
                 </span>
               </div>
 

@@ -5,7 +5,15 @@ export type SiteSettings = {
   drop_target_date: string;
   drop_bg_image: string;
   drop_subtitle: string;
-  hero_bg_image: string;
+  discount_enabled: string;
+  discount_percentage: string;
+  discount_label: string;
+  contact_phone: string;
+  contact_whatsapp: string;
+  contact_address: string;
+  contact_email: string;
+  contact_hours: string;
+  contact_instagram: string;
   footer_description: string;
   footer_instagram: string;
   footer_whatsapp: string;
@@ -16,9 +24,17 @@ export type SiteSettings = {
 const DEFAULTS: SiteSettings = {
   drop_name: "DROP 5",
   drop_target_date: "2026-05-08T23:00:00.000Z",
-  drop_bg_image: "",
-  hero_bg_image: "",
+  drop_bg_image: "https://res.cloudinary.com/dwcjuvdtn/image/upload/v1777763004/salasfl4co_nkstmy.png",
   drop_subtitle: "Viernes 8 de Mayo — 20:00 hs Argentina",
+  discount_enabled: "false",
+  discount_percentage: "0",
+  discount_label: "DESCUENTO",
+  contact_phone: "+54 223 574-4381",
+  contact_whatsapp: "2235744381",
+  contact_address: "",
+  contact_email: "",
+  contact_hours: "",
+  contact_instagram: "kyrbirt",
   footer_description: "Argentine streetwear brand. Built around street culture, local artists, and limited drops. Real recognizes real.",
   footer_instagram: "https://www.instagram.com/kyrbirt/",
   footer_whatsapp: "https://wa.me/2235744381",
@@ -32,8 +48,7 @@ export function useSiteSettings() {
     queryFn: async () => {
       const res = await fetch("/api/settings");
       if (!res.ok) return DEFAULTS;
-      const raw = await res.json();
-      return { ...DEFAULTS, ...raw };
+      return res.json();
     },
     staleTime: 30_000,
   });

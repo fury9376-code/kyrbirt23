@@ -28,7 +28,6 @@ router.post("/admin/products", requireAdminAuth, async (req, res) => {
         price: String(product.price),
         sizes: JSON.stringify(product.sizes || []),
         unavailableSizes: JSON.stringify(product.unavailableSizes || []),
-        sizeGuide: typeof product.sizeGuide === "string" ? product.sizeGuide : JSON.stringify(product.sizeGuide || []),
         category: product.category,
         subcategory: product.subcategory || null,
         locked: product.locked || false,
@@ -47,7 +46,6 @@ router.post("/admin/products", requireAdminAuth, async (req, res) => {
           price: String(product.price),
           sizes: JSON.stringify(product.sizes || []),
           unavailableSizes: JSON.stringify(product.unavailableSizes || []),
-          sizeGuide: typeof product.sizeGuide === "string" ? product.sizeGuide : JSON.stringify(product.sizeGuide || []),
           category: product.category,
           subcategory: product.subcategory || null,
           locked: product.locked || false,
@@ -66,7 +64,7 @@ router.post("/admin/products", requireAdminAuth, async (req, res) => {
 
 router.delete("/admin/products/:id", requireAdminAuth, async (req, res) => {
   try {
-    await db.delete(siteProductsTable).where(eq(siteProductsTable.id, req.params.id));
+    await db.delete(siteProductsTable).where(eq(siteProductsTable.id, String(req.params.id)));
     return res.json({ ok: true });
   } catch {
     return res.status(500).json({ error: "Failed to delete product" });

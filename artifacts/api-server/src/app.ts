@@ -4,42 +4,31 @@ import pinoHttp from "pino-http";
 import router from "./routes";
 import { logger } from "./lib/logger";
 
-export function createApp(staticDir?: string): Express {
-  const app: Express = express();
+const app: Express = express();
 
-  app.use(
-    pinoHttp({
-      logger,
-      serializers: {
-        req(req) {
-          return {
-            id: req.id,
-            method: req.method,
-            url: req.url?.split("?")[0],
-          };
-        },
-        res(res) {
-          return {
-            statusCode: res.statusCode,
-          };
-        },
+app.use(
+  pinoHttp({
+    logger,
+    serializers: {
+      req(req) {
+        return {
+          id: req.id,
+          method: req.method,
+          url: req.url?.split("?")[0],
+        };
       },
-    }),
-  );
-  app.use(cors());
-  app.use(express.json());
-  app.use(express.urlencoded({ extended: true }));
+      res(res) {
+        return {
+          statusCode: res.statusCode,
+        };
+      },
+    },
+  }),
+);
+app.use(cors());
+app.use(express.json());
+app.use(express.urlencoded({ extended: true }));
 
-  app.use("/api", router);
+app.use("/api", router);
 
-  if (staticDir) {
-    app.use(express.static(staticDir));
-    app.get("*", (_req, res) => {
-      res.sendFile(`${staticDir}/index.html`);
-    });
-  }
-
-  return app;
-}
-
-export default createApp();
+export default app;

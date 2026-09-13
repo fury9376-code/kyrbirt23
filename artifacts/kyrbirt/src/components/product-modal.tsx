@@ -2,7 +2,7 @@ import { useState, useEffect } from "react";
 import { Dialog, DialogContent, DialogTitle } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { ChevronLeft, ChevronRight, X, Ruler } from "lucide-react";
-import { type Product, type Colorway, type SizeGuideRow } from "@/data/products";
+import { type Product, type Colorway } from "@/data/products";
 import useEmblaCarousel from "embla-carousel-react";
 import { PurchaseForm } from "./purchase-form";
 import {
@@ -11,9 +11,13 @@ import {
   PopoverTrigger,
 } from "@/components/ui/popover";
 import { useQuery } from "@tanstack/react-query";
+import { useSiteSettings } from "@/hooks/use-site-settings";
+import { formatPrice, getDiscountedPrice, getDiscountPercentage, hasActiveDiscount } from "@/lib/pricing";
 
-function useGlobalSizeGuide() {
-  const { data } = useQuery<SizeGuideRow[]>({
+type SizeRow = { size: string; chest: string; length: string };
+
+function useSizeGuide() {
+  const { data } = useQuery<SizeRow[]>({
     queryKey: ["size-guide"],
     queryFn: async () => {
       const res = await fetch("/api/settings");
@@ -46,7 +50,8 @@ export function ProductModal({ product, isOpen, onClose }: ProductModalProps) {
   const [showPurchaseForm, setShowPurchaseForm] = useState(false);
   const [selectedColorway, setSelectedColorway] = useState<Colorway | null>(null);
   const [selectedSize, setSelectedSize] = useState<string>("");
-  const globalSizeGuide = useGlobalSizeGuide();
+  const sizeGuide = useSizeGuide();
+  const { settings } = useSiteSettings();
 
   useEffect(() => {
     if (isOpen) {
@@ -76,17 +81,15 @@ export function ProductModal({ product, isOpen, onClose }: ProductModalProps) {
   const activeUnavailable = selectedColorway ? selectedColorway.unavailableSizes : [];
   const availableSizes = activeSizes.filter((s) => !activeUnavailable.includes(s));
   const allSizesUnavailable = activeSizes.length > 0 && availableSizes.length === 0;
+  const discountedPrice = getDiscountedPrice(product.price, settings);
+  const discountActive = hasActiveDiscount(product.price, settings);
+  const discountPercentage = getDiscountPercentage(settings);
 
   const buyDisabled =
     productSoldOut ||
     allColorwaysSoldOut ||
     colorwaySoldOut ||
     allSizesUnavailable;
-
-  const sizeGuide: SizeGuideRow[] =
-    (product.sizeGuide && product.sizeGuide.length > 0)
-      ? product.sizeGuide
-      : globalSizeGuide;
 
   return (
     <>
@@ -110,15 +113,12 @@ export function ProductModal({ product, isOpen, onClose }: ProductModalProps) {
               <div className="overflow-hidden h-full" ref={emblaRef}>
                 <div className="flex h-full">
                   {product.photos.map((photo, i) => (
-                    <div key={i} className="flex-[0_0_100%] min-w-0 h-full relative bg-card">
-                      {photo ? (
-                        <img
-                          src={photo}
-                          alt={`${product.name} - Vista ${i + 1}`}
-                          className="absolute inset-0 w-full h-full object-cover"
-                          onError={(e) => { e.currentTarget.style.display = "none"; }}
-                        />
-                      ) : null}
+                    <div key={i} className="flex-[0_0_100%] min-w-0 h-full relative">
+                      <img
+                        src={photo}
+                        alt={`${product.name} - Vista ${i + 1}`}
+                        className="absolute inset-0 w-full h-full object-cover"
+                      />
                     </div>
                   ))}
                 </div>
@@ -147,13 +147,21 @@ export function ProductModal({ product, isOpen, onClose }: ProductModalProps) {
                     <span className="bg-destructive text-destructive-foreground px-3 py-1 text-sm font-bold tracking-widest">
                       SOLD OUT
                     </span>
-                  ) : (
-                    <span className="text-2xl font-mono">
-                      ${typeof product.price === "number"
-                        ? product.price.toLocaleString("es-AR")
-                        : product.price}
-                    </span>
-                  )}
+                  ) : discountActive && typeof product.price === "number" ? (
+                      <div className="flex flex-col items-end">
+                        <span className="text-xs font-mono text-muted-foreground line-through">
+                          {formatPrice(product.price)}
+                        </span>
+                        <span className="text-2xl font-mono text-primary">
+                          {formatPrice(discountedPrice)}
+                        </span>
+                        <span className="text-[10px] tracking-widest text-primary uppercase">
+                          {settings.discount_label || "DESCUENTO"} · {discountPercentage}%
+                        </span>
+                      </div>
+                    ) : (
+                      <span className="text-2xl font-mono">{formatPrice(product.price)}</span>
+                    )}
                 </div>
               </div>
 
@@ -216,9 +224,7 @@ export function ProductModal({ product, isOpen, onClose }: ProductModalProps) {
                         <div className="bg-card">
                           <div className="px-4 py-3 border-b border-border">
                             <p className="text-xs font-bold tracking-widest uppercase">Guía de Talles</p>
-                            <p className="text-[10px] text-muted-foreground tracking-wider mt-0.5">
-                              {product.name} — medidas en centímetros
-                            </p>
+                            <p className="text-[10px] text-muted-foreground tracking-wider mt-0.5">Medidas en centímetros</p>
                           </div>
                           <table className="w-full text-sm">
                             <thead>
@@ -230,7 +236,7 @@ export function ProductModal({ product, isOpen, onClose }: ProductModalProps) {
                             </thead>
                             <tbody>
                               {sizeGuide.map((row, i) => (
-                                <tr key={row.size + i} className={`border-b border-border/50 ${i % 2 === 0 ? "" : "bg-muted/20"}`}>
+                                <tr key={row.size} className={`border-b border-border/50 ${i % 2 === 0 ? "" : "bg-muted/20"}`}>
                                   <td className="py-2.5 px-4">
                                     <span className="font-display tracking-wider text-base">{row.size}</span>
                                   </td>
