@@ -1,5 +1,11 @@
 import { Router } from "express";
-import { asc, db, eq, siteProductsTable } from "@workspace/db";
+import {
+  asc,
+  db,
+  eq,
+  isDatabaseConfigured,
+  siteProductsTable,
+} from "@workspace/db";
 import { requireAdminAuth } from "./admin-auth.js";
 import type { ApiRequest, ApiResponse } from "../lib/http-types.js";
 
@@ -12,6 +18,9 @@ function normalizeDiscountPercentage(value: unknown) {
 }
 
 router.get("/products", async (_req: ApiRequest, res: ApiResponse) => {
+  if (!isDatabaseConfigured) {
+    return res.status(503).json({ error: "DATABASE_URL env var not configured" });
+  }
   try {
     const rows = await db.select().from(siteProductsTable).orderBy(asc(siteProductsTable.sortOrder), asc(siteProductsTable.createdAt));
     return res.json(rows);
@@ -21,6 +30,9 @@ router.get("/products", async (_req: ApiRequest, res: ApiResponse) => {
 });
 
 router.post("/admin/products", requireAdminAuth, async (req: ApiRequest, res: ApiResponse) => {
+  if (!isDatabaseConfigured) {
+    return res.status(503).json({ error: "DATABASE_URL env var not configured" });
+  }
   const product = req.body;
   try {
     await db
@@ -75,6 +87,9 @@ router.post("/admin/products", requireAdminAuth, async (req: ApiRequest, res: Ap
 });
 
 router.delete("/admin/products/:id", requireAdminAuth, async (req: ApiRequest, res: ApiResponse) => {
+  if (!isDatabaseConfigured) {
+    return res.status(503).json({ error: "DATABASE_URL env var not configured" });
+  }
   try {
     await db.delete(siteProductsTable).where(eq(siteProductsTable.id, String(req.params.id)));
     return res.json({ ok: true });

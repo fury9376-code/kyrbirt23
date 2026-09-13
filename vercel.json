@@ -6,6 +6,10 @@
   "outputDirectory": "artifacts/kyrbirt/dist",
   "rewrites": [
     {
+      "source": "/api/:path*",
+      "destination": "/api"
+    },
+    {
       "source": "/admin",
       "destination": "/index.html"
     },

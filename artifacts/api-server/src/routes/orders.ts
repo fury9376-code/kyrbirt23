@@ -1,6 +1,6 @@
 import { Router } from "express";
 import nodemailer from "nodemailer";
-import { db, desc, ordersTable } from "@workspace/db";
+import { db, desc, isDatabaseConfigured, ordersTable } from "@workspace/db";
 import { requireAdminAuth } from "./admin-auth.js";
 import type { ApiRequest, ApiResponse } from "../lib/http-types.js";
 
@@ -86,6 +86,9 @@ Ante cualquier consulta, estamos acá 🤙
 }
 
 router.post("/orders/email", async (req: ApiRequest, res: ApiResponse) => {
+  if (!isDatabaseConfigured) {
+    return res.status(503).json({ error: "DATABASE_URL env var not configured" });
+  }
   const { product, price, size, color, quantity, fullName, phone, email, comments } = req.body;
   const gmailUser = process.env["GMAIL_USER"];
   const gmailPass = process.env["GMAIL_APP_PASSWORD"];
@@ -162,6 +165,9 @@ router.post("/orders/email", async (req: ApiRequest, res: ApiResponse) => {
 });
 
 router.get("/admin/orders", requireAdminAuth, async (req: ApiRequest, res: ApiResponse) => {
+  if (!isDatabaseConfigured) {
+    return res.status(503).json({ error: "DATABASE_URL env var not configured" });
+  }
   try {
     const orders = await db.select().from(ordersTable).orderBy(desc(ordersTable.createdAt));
     return res.json(orders);

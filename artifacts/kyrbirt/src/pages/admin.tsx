@@ -1161,7 +1161,7 @@ const TABS: { id: Tab; label: string; icon: React.ReactNode }[] = [
 export default function Admin() {
   const [password, setPassword] = useState("");
   const [authed, setAuthed] = useState(false);
-  const [error, setError] = useState(false);
+  const [error, setError] = useState("");
   const [activeTab, setActiveTab] = useState<Tab>("orders");
   const [settings, setSettings] = useState<Settings>({});
 
@@ -1183,13 +1183,20 @@ export default function Admin() {
       if (res.ok) {
         _sessionPassword = password;
         setAuthed(true);
-        setError(false);
+        setError("");
         fetchSettings();
       } else {
-        setError(true);
+        const data = await res.json().catch(() => null) as { error?: string } | null;
+        if (res.status === 503) {
+          setError(data?.error ?? "El panel Admin no está configurado en producción.");
+        } else if (res.status === 404) {
+          setError("La ruta del panel Admin no está disponible.");
+        } else {
+          setError(data?.error ?? "Contraseña incorrecta.");
+        }
       }
     } catch {
-      setError(true);
+      setError("No se pudo conectar con el servidor.");
     }
   };
 
@@ -1235,7 +1242,7 @@ export default function Admin() {
                       placeholder="••••••••"
                       data-testid="input-admin-password"
                     />
-                    {error && <p className="text-destructive text-xs mt-2 tracking-wider">Contraseña incorrecta</p>}
+                    {error && <p className="text-destructive text-xs mt-2 tracking-wider">{error}</p>}
                   </div>
                   <Button type="submit" className="w-full rounded-none font-display tracking-widest" data-testid="button-admin-login">
                     INGRESAR

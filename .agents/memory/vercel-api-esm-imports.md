@@ -10,3 +10,5 @@ All relative ESM imports in the Vercel API dependency chain must use explicit `.
 **How to apply:** After changing the API dependency chain, run a standalone TypeScript check of the Vercel entry with `module` and `moduleResolution` set to `NodeNext`, in addition to the normal workspace checks.
 
 Keep Drizzle tables, client, and query helpers imported from `@workspace/db` so Vercel cannot resolve incompatible package identities. Structurally narrow the result of Node's global `fetch()` when only a small response surface is required.
+
+Vercel's filesystem catch-all did not capture nested API paths in this mixed static/function deployment. Always smoke-test both one-level and nested endpoints on the public production alias.

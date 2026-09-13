@@ -1,5 +1,5 @@
 import { Router } from "express";
-import { db, siteSettingsTable } from "@workspace/db";
+import { db, isDatabaseConfigured, siteSettingsTable } from "@workspace/db";
 import { requireAdminAuth } from "./admin-auth.js";
 import type { ApiRequest, ApiResponse } from "../lib/http-types.js";
 
@@ -70,6 +70,11 @@ function replaceBlockedMedia(settings: Record<string, string>) {
 }
 
 router.get("/settings", async (_req: ApiRequest, res: ApiResponse) => {
+  if (!isDatabaseConfigured) {
+    const settings = { ...DEFAULTS };
+    replaceBlockedMedia(settings);
+    return res.json(settings);
+  }
   try {
     const rows = await db.select().from(siteSettingsTable);
     const settings: Record<string, string> = { ...DEFAULTS };
@@ -84,6 +89,9 @@ router.get("/settings", async (_req: ApiRequest, res: ApiResponse) => {
 });
 
 router.post("/admin/settings", requireAdminAuth, async (req: ApiRequest, res: ApiResponse) => {
+  if (!isDatabaseConfigured) {
+    return res.status(503).json({ error: "DATABASE_URL env var not configured" });
+  }
   const { key, value } = req.body as { key: string; value: string };
   if (!key || value === undefined) {
     return res.status(400).json({ error: "key and value required" });
@@ -104,6 +112,9 @@ router.post("/admin/settings", requireAdminAuth, async (req: ApiRequest, res: Ap
 });
 
 router.post("/admin/settings/batch", requireAdminAuth, async (req: ApiRequest, res: ApiResponse) => {
+  if (!isDatabaseConfigured) {
+    return res.status(503).json({ error: "DATABASE_URL env var not configured" });
+  }
   const updates = req.body as Record<string, string>;
   try {
     for (const [key, value] of Object.entries(updates)) {
