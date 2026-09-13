@@ -1,11 +1,11 @@
-import { Router, type IRouter } from "express";
+import { Router, type Request, type Response } from "express";
 import healthRouter from "./health.js";
 import maintenanceRouter from "./maintenance.js";
 import ordersRouter from "./orders.js";
 import settingsRouter from "./settings.js";
 import productsRouter from "./products.js";
 
-const router: IRouter = Router();
+const router = Router();
 
 router.use(healthRouter);
 router.use(maintenanceRouter);
@@ -14,7 +14,7 @@ router.use(settingsRouter);
 router.use(productsRouter);
 
 // Server-side admin password verification — never exposes the secret to the client
-router.post("/admin/verify", (req, res) => {
+router.post("/admin/verify", (req: Request, res: Response) => {
   const { password } = req.body as { password?: string };
   const adminPassword = process.env["ADMIN_PASSWORD"] ?? "";
   if (!adminPassword) {
