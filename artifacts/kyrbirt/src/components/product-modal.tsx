@@ -10,34 +10,17 @@ import {
   PopoverContent,
   PopoverTrigger,
 } from "@/components/ui/popover";
-import { useQuery } from "@tanstack/react-query";
 import { useSiteSettings } from "@/hooks/use-site-settings";
 import { formatPrice, getDiscountedPrice, getDiscountPercentage, hasActiveDiscount } from "@/lib/pricing";
 
 type SizeRow = { size: string; chest: string; length: string };
 
-function useSizeGuide() {
-  const { data } = useQuery<SizeRow[]>({
-    queryKey: ["size-guide"],
-    queryFn: async () => {
-      const res = await fetch("/api/settings");
-      if (!res.ok) return [];
-      const s = await res.json();
-      try {
-        return JSON.parse(s.size_guide || "[]");
-      } catch {
-        return [];
-      }
-    },
-    staleTime: 60_000,
-  });
-  return data ?? [
+const DEFAULT_SIZE_GUIDE: SizeRow[] = [
     { size: "S", chest: "50", length: "70" },
     { size: "M", chest: "52", length: "72" },
     { size: "L", chest: "54", length: "74" },
     { size: "XL", chest: "56", length: "76" },
-  ];
-}
+];
 
 interface ProductModalProps {
   product: Product | null;
@@ -50,8 +33,14 @@ export function ProductModal({ product, isOpen, onClose }: ProductModalProps) {
   const [showPurchaseForm, setShowPurchaseForm] = useState(false);
   const [selectedColorway, setSelectedColorway] = useState<Colorway | null>(null);
   const [selectedSize, setSelectedSize] = useState<string>("");
-  const sizeGuide = useSizeGuide();
   const { settings } = useSiteSettings();
+  let sizeGuide = DEFAULT_SIZE_GUIDE;
+  try {
+    const parsed = JSON.parse(settings.size_guide || "[]");
+    if (Array.isArray(parsed) && parsed.length > 0) sizeGuide = parsed;
+  } catch {
+    sizeGuide = DEFAULT_SIZE_GUIDE;
+  }
 
   useEffect(() => {
     if (isOpen) {

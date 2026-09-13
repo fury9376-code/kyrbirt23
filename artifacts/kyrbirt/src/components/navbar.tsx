@@ -2,8 +2,7 @@ import { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Menu, X } from 'lucide-react';
 import { Link, useLocation } from 'wouter';
-
-const GIF_LOGO = "/logo.gif";
+import { BRAND_LOGO_URL } from "@/lib/assets";
 
 export function Navbar() {
   const [isScrolled, setIsScrolled] = useState(false);
@@ -46,7 +45,7 @@ export function Navbar() {
             data-testid="link-logo"
           >
             <img
-              src={GIF_LOGO}
+              src={BRAND_LOGO_URL}
               alt="KYRBIRT Logo"
               style={{
                 width: '140px',

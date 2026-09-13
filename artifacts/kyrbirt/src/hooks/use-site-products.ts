@@ -1,5 +1,6 @@
 import { useQuery } from "@tanstack/react-query";
 import { products as hardcodedProducts, type Product, type Colorway } from "@/data/products";
+import { PRODUCT_FALLBACK_URL, resolveMediaUrl } from "@/lib/assets";
 
 type ApiProduct = {
   id: string;
@@ -48,7 +49,9 @@ function parseApiProduct(p: ApiProduct): Product {
     id: p.id,
     name: p.name,
     description: p.description,
-    photos: JSON.parse(p.photos || "[]"),
+    photos: (JSON.parse(p.photos || "[]") as unknown[]).map((photo) =>
+      resolveMediaUrl(photo, PRODUCT_FALLBACK_URL),
+    ),
     colorways: parseColorways(p.colorways, defaultSizes, legacyUnavailable),
     price: price as Product["price"],
     sizes: defaultSizes,
@@ -60,18 +63,25 @@ function parseApiProduct(p: ApiProduct): Product {
   };
 }
 
+const fallbackProducts = hardcodedProducts.map((product) => ({
+  ...product,
+  photos: product.photos.map((photo) =>
+    resolveMediaUrl(photo, PRODUCT_FALLBACK_URL),
+  ),
+}));
+
 export function useSiteProducts() {
   const { data, isLoading, refetch } = useQuery<Product[]>({
     queryKey: ["site-products"],
     queryFn: async () => {
       const res = await fetch("/api/products");
-      if (!res.ok) return hardcodedProducts;
+      if (!res.ok) return fallbackProducts;
       const rows: ApiProduct[] = await res.json();
-      if (rows.length === 0) return hardcodedProducts;
+      if (rows.length === 0) return fallbackProducts;
       return rows.filter((p) => p.available).map(parseApiProduct);
     },
     staleTime: 30_000,
   });
 
-  return { products: data ?? hardcodedProducts, isLoading, refetch };
+  return { products: data ?? fallbackProducts, isLoading, refetch };
 }

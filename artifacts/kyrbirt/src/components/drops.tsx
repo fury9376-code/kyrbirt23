@@ -2,6 +2,7 @@ import { motion, AnimatePresence } from "framer-motion";
 import { useDrops } from "@/hooks/use-drops";
 import { useSiteSettings } from "@/hooks/use-site-settings";
 import { useSiteProducts } from "@/hooks/use-site-products";
+import { HERO_IMAGE_URL, resolveMediaUrl } from "@/lib/assets";
 
 const FF = "'FranklinGothic', 'Arial Narrow', sans-serif";
 
@@ -45,7 +46,7 @@ export function Drops() {
       <div
         className="absolute inset-0 bg-cover bg-center bg-no-repeat transition-all duration-1000"
         style={{
-          backgroundImage: `url(${settings.drop_bg_image})`,
+          backgroundImage: `url(${resolveMediaUrl(settings.drop_bg_image, HERO_IMAGE_URL)})`,
           filter: unlocked ? "blur(0px) grayscale(0%)" : "blur(12px) grayscale(60%)",
           transform: "scale(1.05)",
         }}

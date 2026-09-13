@@ -11,6 +11,7 @@ import {
 import { Link } from "wouter";
 import { type Product, type Colorway } from "@/data/products";
 import { products as hardcodedProducts } from "@/data/products";
+import { PRODUCT_FALLBACK_URL, resolveMediaUrl } from "@/lib/assets";
 
 const CATEGORIES = ["Remeras", "Pantalones", "Accesorios", "Hoodies"];
 const SUBCATEGORIES: Record<string, string[]> = {
@@ -541,7 +542,11 @@ function ProductsTab() {
               >
                 <div className="flex items-center gap-4 min-w-0">
                   {p.photos && JSON.parse(p.photos)[0] && (
-                    <img src={JSON.parse(p.photos)[0]} alt="" className="w-10 h-10 object-cover shrink-0" />
+                    <img
+                      src={resolveMediaUrl(JSON.parse(p.photos || "[]")[0], PRODUCT_FALLBACK_URL)}
+                      alt=""
+                      className="w-10 h-10 object-cover shrink-0"
+                    />
                   )}
                   <div className="min-w-0">
                     <p className="font-display tracking-wide truncate">{p.name}</p>

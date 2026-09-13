@@ -1,4 +1,5 @@
 import { motion } from "framer-motion";
+import { BRAND_LOGO_URL } from "@/lib/assets";
 
 export function MaintenancePage() {
   return (
@@ -17,9 +18,9 @@ export function MaintenancePage() {
         className="relative z-10 text-center max-w-lg"
       >
         <img
-          src="https://res.cloudinary.com/dwcjuvdtn/image/upload/f_auto,q_auto/kyrbirt_logo_negro_mvptuz"
+          src={BRAND_LOGO_URL}
           alt="KYRBIRT"
-          className="w-16 mx-auto mb-12 invert opacity-80"
+          className="w-48 h-auto mx-auto mb-12 opacity-80"
         />
 
         <p className="text-[#FFFEF7]/30 tracking-[0.5em] text-xs uppercase mb-6">

@@ -56,6 +56,16 @@ export default defineConfig(async ({ command }) => {
       host: "0.0.0.0",
       allowedHosts: true,
       fs: { strict: true },
+      ...(isReplit && isDev
+        ? {
+            proxy: {
+              "/api": {
+                target: "http://127.0.0.1:8080",
+                changeOrigin: false,
+              },
+            },
+          }
+        : {}),
     },
     preview: {
       port,

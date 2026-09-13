@@ -2,6 +2,7 @@ import { Instagram, MessageCircle } from "lucide-react";
 import { Input } from "./ui/input";
 import { Button } from "./ui/button";
 import { useSiteSettings } from "@/hooks/use-site-settings";
+import { BRAND_LOGO_URL } from "@/lib/assets";
 
 export function Footer() {
   const { settings } = useSiteSettings();
@@ -19,9 +20,9 @@ export function Footer() {
           {/* Col 1: Brand */}
           <div>
             <img 
-              src="https://res.cloudinary.com/dwcjuvdtn/image/upload/f_auto,q_auto/kyrbirt_logo_negro_mvptuz" 
+              src={BRAND_LOGO_URL}
               alt="KYRBIRT Logo" 
-              className="h-8 invert mb-6"
+              className="h-8 mb-6"
             />
             <p className="text-muted-foreground max-w-sm leading-relaxed">
               {settings.footer_description}

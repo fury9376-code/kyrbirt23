@@ -2,6 +2,7 @@ import { motion } from "framer-motion";
 import { Link } from "wouter";
 import { useDrops } from "@/hooks/use-drops";
 import { useSiteSettings } from "@/hooks/use-site-settings";
+import { HERO_IMAGE_URL } from "@/lib/assets";
 
 const FF = "'FranklinGothic', 'Arial Narrow', sans-serif";
 
@@ -19,7 +20,7 @@ export function Hero() {
 
       <div className="absolute inset-[24px] z-0 overflow-hidden">
         <img
-          src="https://res.cloudinary.com/dwcjuvdtn/image/upload/v1777762907/fondo_web_usjvpe.png"
+          src={HERO_IMAGE_URL}
           alt="KYRBIRT background"
           loading="eager"
           className="w-full h-full object-cover"

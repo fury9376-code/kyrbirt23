@@ -29,7 +29,7 @@ outputType = "webview"
 
 [[workflows.workflow.tasks]]
 task = "shell.exec"
-args = "PORT=22880 BASE_PATH=/ pnpm --filter @workspace/kyrbirt run dev"
+args = "PORT=8080 pnpm --filter @workspace/api-server run dev & API_PID=$!; trap 'kill $API_PID' EXIT; PORT=22880 BASE_PATH=/ pnpm --filter @workspace/kyrbirt run dev"
 waitForPort = 22880
 
 [agent]

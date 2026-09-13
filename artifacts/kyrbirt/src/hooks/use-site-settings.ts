@@ -1,4 +1,5 @@
 import { useQuery } from "@tanstack/react-query";
+import { HERO_IMAGE_URL } from "@/lib/assets";
 
 export type SiteSettings = {
   drop_name: string;
@@ -19,12 +20,14 @@ export type SiteSettings = {
   footer_whatsapp: string;
   footer_payment_methods: string;
   footer_credits: string;
+  fam_photos: string;
+  size_guide: string;
 };
 
 const DEFAULTS: SiteSettings = {
   drop_name: "DROP 5",
   drop_target_date: "2026-05-08T23:00:00.000Z",
-  drop_bg_image: "https://res.cloudinary.com/dwcjuvdtn/image/upload/v1777763004/salasfl4co_nkstmy.png",
+  drop_bg_image: HERO_IMAGE_URL,
   drop_subtitle: "Viernes 8 de Mayo — 20:00 hs Argentina",
   discount_enabled: "false",
   discount_percentage: "0",
@@ -40,6 +43,13 @@ const DEFAULTS: SiteSettings = {
   footer_whatsapp: "https://wa.me/2235744381",
   footer_payment_methods: "EFECTIVO,TRANSFERENCIA,MERCADOPAGO",
   footer_credits: "Diseñado por @_nico.esteban",
+  fam_photos: JSON.stringify([HERO_IMAGE_URL]),
+  size_guide: JSON.stringify([
+    { size: "S", chest: "50", length: "70" },
+    { size: "M", chest: "52", length: "72" },
+    { size: "L", chest: "54", length: "74" },
+    { size: "XL", chest: "56", length: "76" },
+  ]),
 };
 
 export function useSiteSettings() {

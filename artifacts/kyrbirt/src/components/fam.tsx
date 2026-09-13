@@ -1,39 +1,27 @@
-import { useState } from "react";
+import { useMemo, useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { Maximize2, X } from "lucide-react";
-import { useQuery } from "@tanstack/react-query";
+import { FAM_FALLBACK_URL, resolveMediaUrl } from "@/lib/assets";
+import { useSiteSettings } from "@/hooks/use-site-settings";
 
-const FAM_PHOTOS_FALLBACK = [
-  "https://res.cloudinary.com/dwcjuvdtn/image/upload/v1777763012/turrobaby_ppibbe.png",
-  "https://res.cloudinary.com/dwcjuvdtn/image/upload/v1777763034/pppatuka_sgyabe.png",
-  "https://res.cloudinary.com/dwcjuvdtn/image/upload/v1777763013/panchitolefleur_lzvqoe.png",
-  "https://res.cloudinary.com/dwcjuvdtn/image/upload/v1777763011/neopistea_u1qr5p.png",
-  "https://res.cloudinary.com/dwcjuvdtn/image/upload/v1777763005/ceroasterisco_jdk30z.png",
-  "https://res.cloudinary.com/dwcjuvdtn/image/upload/v1777763004/bhaviboi_ht4rh1.png",
-  "https://res.cloudinary.com/dwcjuvdtn/image/upload/v1777763004/salasfl4co_nkstmy.png",
-  "https://res.cloudinary.com/dwcjuvdtn/image/upload/v1777763001/shako2b_ejtp9f.png",
-  "https://res.cloudinary.com/dwcjuvdtn/image/upload/v1777762998/luhrever_u8dj5c.png",
-  "https://res.cloudinary.com/dwcjuvdtn/image/upload/v1777839945/uzu.messineo_1_uax1pr.png",
-  "https://res.cloudinary.com/dwcjuvdtn/image/upload/v1777763004/sstiffy_v8f6ir.png",
-];
+const FAM_PHOTOS_FALLBACK = [FAM_FALLBACK_URL];
 
 function useFamPhotos() {
-  const { data } = useQuery<string[]>({
-    queryKey: ["fam-photos"],
-    queryFn: async () => {
-      const res = await fetch("/api/settings");
-      if (!res.ok) return FAM_PHOTOS_FALLBACK;
-      const s = await res.json();
+  const { settings } = useSiteSettings();
+  return useMemo(() => {
       try {
-        const photos = JSON.parse(s.fam_photos || "[]");
-        return Array.isArray(photos) && photos.length > 0 ? photos : FAM_PHOTOS_FALLBACK;
+        const photos = JSON.parse(settings.fam_photos || "[]");
+        if (!Array.isArray(photos) || photos.length === 0) return FAM_PHOTOS_FALLBACK;
+        const resolved = photos.map((photo) =>
+          resolveMediaUrl(photo, FAM_FALLBACK_URL),
+        );
+        return resolved.every((photo) => photo === FAM_FALLBACK_URL)
+          ? FAM_PHOTOS_FALLBACK
+          : [...new Set(resolved)];
       } catch {
         return FAM_PHOTOS_FALLBACK;
       }
-    },
-    staleTime: 30_000,
-  });
-  return data ?? FAM_PHOTOS_FALLBACK;
+  }, [settings.fam_photos]);
 }
 
 export function Fam() {

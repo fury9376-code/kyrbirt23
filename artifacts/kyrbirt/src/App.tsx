@@ -1,3 +1,4 @@
+import { lazy, Suspense } from "react";
 import { Switch, Route, Router as WouterRouter, useLocation } from "wouter";
 import { QueryClient, QueryClientProvider, useQuery } from "@tanstack/react-query";
 import { Toaster } from "@/components/ui/toaster";
@@ -5,9 +6,10 @@ import { TooltipProvider } from "@/components/ui/tooltip";
 import NotFound from "@/pages/not-found";
 import Home from "@/pages/home";
 import DropsPage from "@/pages/drops-page";
-import Admin from "@/pages/admin";
-import ToggleMaintenance from "@/pages/toggle-maintenance";
 import { MaintenancePage } from "@/components/maintenance-page";
+
+const Admin = lazy(() => import("@/pages/admin"));
+const ToggleMaintenance = lazy(() => import("@/pages/toggle-maintenance"));
 
 const queryClient = new QueryClient();
 
@@ -32,12 +34,20 @@ function Router() {
     <Switch>
       <Route path="/" component={Home} />
       <Route path="/drops" component={DropsPage} />
-      <Route path="/admin" component={Admin} />
+      <Route path="/admin">
+        <Suspense fallback={<div className="min-h-screen bg-background" />}>
+          <Admin />
+        </Suspense>
+      </Route>
       <Route path="/mantenimiento">
-        <ToggleMaintenance action="enable" />
+        <Suspense fallback={<div className="min-h-screen bg-background" />}>
+          <ToggleMaintenance action="enable" />
+        </Suspense>
       </Route>
       <Route path="/umantenimiento">
-        <ToggleMaintenance action="disable" />
+        <Suspense fallback={<div className="min-h-screen bg-background" />}>
+          <ToggleMaintenance action="disable" />
+        </Suspense>
       </Route>
       <Route component={NotFound} />
     </Switch>
