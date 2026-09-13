@@ -1,3 +1,37 @@
-import app from "../artifacts/api-server/src/app.js";
+type ServerlessResponse = {
+  statusCode: number;
+  setHeader(name: string, value: string): void;
+  end(body?: string): void;
+};
 
-export default app;
+type ServerlessApp = (request: unknown, response: unknown) => unknown;
+
+let appPromise: Promise<ServerlessApp> | undefined;
+
+function loadApp() {
+  appPromise ??= import("../artifacts/api-server/src/app.js").then(
+    ({ default: app }) => app as unknown as ServerlessApp,
+  );
+  return appPromise;
+}
+
+export default async function handler(
+  request: unknown,
+  response: ServerlessResponse,
+) {
+  try {
+    const app = await loadApp();
+    return app(request, response);
+  } catch (error) {
+    console.error("API initialization failed", error);
+    const message = error instanceof Error ? error.message : "Unknown error";
+    const safeMessage = message
+      .replace(/postgres(?:ql)?:\/\/[^\s]+/gi, "[redacted-database-url]")
+      .slice(0, 300);
+    response.statusCode = 500;
+    response.setHeader("Content-Type", "application/json");
+    return response.end(
+      JSON.stringify({ error: "API_INIT_FAILED", message: safeMessage }),
+    );
+  }
+}
