@@ -12,3 +12,5 @@ All relative ESM imports in the Vercel API dependency chain must use explicit `.
 Keep Drizzle tables, client, and query helpers imported from `@workspace/db` so Vercel cannot resolve incompatible package identities. Structurally narrow the result of Node's global `fetch()` when only a small response surface is required.
 
 Vercel's filesystem catch-all did not capture nested API paths in this mixed static/function deployment. Always smoke-test both one-level and nested endpoints on the public production alias.
+
+Vercel function tracing omitted pnpm workspace package sources even though typechecking resolved their symlinks. Explicitly include workspace source trees used by the serverless function.

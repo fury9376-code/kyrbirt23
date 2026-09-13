@@ -4,6 +4,16 @@
   "installCommand": "pnpm install",
   "buildCommand": "pnpm --filter @workspace/kyrbirt run build",
   "outputDirectory": "artifacts/kyrbirt/dist",
+  "functions": {
+    "api/index.ts": {
+      "includeFiles": [
+        "lib/api-zod/package.json",
+        "lib/api-zod/src/**",
+        "lib/db/package.json",
+        "lib/db/src/**"
+      ]
+    }
+  },
   "rewrites": [
     {
       "source": "/api/:path*",
