@@ -4,7 +4,8 @@ const baseUrl = import.meta.env.BASE_URL.endsWith("/")
 
 const publicAsset = (fileName: string) => `${baseUrl}${fileName}`;
 
-export const BRAND_LOGO_URL = publicAsset("brand-logo.png");
+export const BRAND_LOGO_URL = publicAsset("logo.gif");
+export const FOOTER_LOGO_URL = publicAsset("brand-logo.png");
 export const FAM_FALLBACK_URL = publicAsset("fam-collage.png");
 export const PRODUCT_FALLBACK_URL = publicAsset("product-placeholder.svg");
 

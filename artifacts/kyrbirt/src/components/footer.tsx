@@ -2,7 +2,7 @@ import { Instagram, MessageCircle } from "lucide-react";
 import { Input } from "./ui/input";
 import { Button } from "./ui/button";
 import { useSiteSettings } from "@/hooks/use-site-settings";
-import { BRAND_LOGO_URL } from "@/lib/assets";
+import { FOOTER_LOGO_URL } from "@/lib/assets";
 
 export function Footer() {
   const { settings } = useSiteSettings();
@@ -20,7 +20,7 @@ export function Footer() {
           {/* Col 1: Brand */}
           <div>
             <img 
-              src={BRAND_LOGO_URL}
+              src={FOOTER_LOGO_URL}
               alt="KYRBIRT Logo" 
               className="h-8 mb-6"
             />
