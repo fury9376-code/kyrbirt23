@@ -3,6 +3,7 @@ import nodemailer from "nodemailer";
 import { db, ordersTable } from "@workspace/db";
 import { desc } from "drizzle-orm";
 import { requireAdminAuth } from "./admin-auth.js";
+import type { ApiRequest, ApiResponse } from "../lib/http-types.js";
 
 const router = Router();
 
@@ -82,7 +83,7 @@ Ante cualquier consulta, estamos acá 🤙
 *KYRBIRT* — instagram.com/kyrbirt`;
 }
 
-router.post("/orders/email", async (req, res) => {
+router.post("/orders/email", async (req: ApiRequest, res: ApiResponse) => {
   const { product, price, size, color, quantity, fullName, phone, email, comments } = req.body;
   const gmailUser = process.env["GMAIL_USER"];
   const gmailPass = process.env["GMAIL_APP_PASSWORD"];
@@ -158,7 +159,7 @@ router.post("/orders/email", async (req, res) => {
   }
 });
 
-router.get("/admin/orders", requireAdminAuth, async (req, res) => {
+router.get("/admin/orders", requireAdminAuth, async (req: ApiRequest, res: ApiResponse) => {
   try {
     const orders = await db.select().from(ordersTable).orderBy(desc(ordersTable.createdAt));
     return res.json(orders);

@@ -2,6 +2,7 @@ import { Router } from "express";
 import { db, siteProductsTable } from "@workspace/db";
 import { eq, asc } from "drizzle-orm";
 import { requireAdminAuth } from "./admin-auth.js";
+import type { ApiRequest, ApiResponse } from "../lib/http-types.js";
 
 const router = Router();
 
@@ -11,7 +12,7 @@ function normalizeDiscountPercentage(value: unknown) {
   return Math.min(100, Math.max(0, Math.round(percentage)));
 }
 
-router.get("/products", async (_req, res) => {
+router.get("/products", async (_req: ApiRequest, res: ApiResponse) => {
   try {
     const rows = await db.select().from(siteProductsTable).orderBy(asc(siteProductsTable.sortOrder), asc(siteProductsTable.createdAt));
     return res.json(rows);
@@ -20,7 +21,7 @@ router.get("/products", async (_req, res) => {
   }
 });
 
-router.post("/admin/products", requireAdminAuth, async (req, res) => {
+router.post("/admin/products", requireAdminAuth, async (req: ApiRequest, res: ApiResponse) => {
   const product = req.body;
   try {
     await db
@@ -74,7 +75,7 @@ router.post("/admin/products", requireAdminAuth, async (req, res) => {
   }
 });
 
-router.delete("/admin/products/:id", requireAdminAuth, async (req, res) => {
+router.delete("/admin/products/:id", requireAdminAuth, async (req: ApiRequest, res: ApiResponse) => {
   try {
     await db.delete(siteProductsTable).where(eq(siteProductsTable.id, String(req.params.id)));
     return res.json({ ok: true });

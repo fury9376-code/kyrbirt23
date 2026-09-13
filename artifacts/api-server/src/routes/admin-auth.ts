@@ -1,12 +1,4 @@
-type AdminAuthRequest = {
-  headers: Record<string, string | string[] | undefined>;
-};
-
-type AdminAuthResponse = {
-  status(code: number): {
-    json(body: unknown): unknown;
-  };
-};
+import type { ApiRequest, ApiResponse } from "../lib/http-types.js";
 
 /**
  * Fail-closed admin auth middleware.
@@ -15,8 +7,8 @@ type AdminAuthResponse = {
  * - passes through if correct
  */
 export function requireAdminAuth(
-  req: AdminAuthRequest,
-  res: AdminAuthResponse,
+  req: ApiRequest,
+  res: ApiResponse,
   next: () => void,
 ) {
   const configured = process.env["ADMIN_PASSWORD"];

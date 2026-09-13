@@ -1,6 +1,7 @@
 import { Router } from "express";
 import { db, siteSettingsTable } from "@workspace/db";
 import { requireAdminAuth } from "./admin-auth.js";
+import type { ApiRequest, ApiResponse } from "../lib/http-types.js";
 
 const router = Router();
 const BLOCKED_CLOUDINARY_PREFIX =
@@ -68,7 +69,7 @@ function replaceBlockedMedia(settings: Record<string, string>) {
   }
 }
 
-router.get("/settings", async (_req, res) => {
+router.get("/settings", async (_req: ApiRequest, res: ApiResponse) => {
   try {
     const rows = await db.select().from(siteSettingsTable);
     const settings: Record<string, string> = { ...DEFAULTS };
@@ -82,7 +83,7 @@ router.get("/settings", async (_req, res) => {
   }
 });
 
-router.post("/admin/settings", requireAdminAuth, async (req, res) => {
+router.post("/admin/settings", requireAdminAuth, async (req: ApiRequest, res: ApiResponse) => {
   const { key, value } = req.body as { key: string; value: string };
   if (!key || value === undefined) {
     return res.status(400).json({ error: "key and value required" });
@@ -102,7 +103,7 @@ router.post("/admin/settings", requireAdminAuth, async (req, res) => {
   }
 });
 
-router.post("/admin/settings/batch", requireAdminAuth, async (req, res) => {
+router.post("/admin/settings/batch", requireAdminAuth, async (req: ApiRequest, res: ApiResponse) => {
   const updates = req.body as Record<string, string>;
   try {
     for (const [key, value] of Object.entries(updates)) {
