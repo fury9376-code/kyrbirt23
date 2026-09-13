@@ -14,3 +14,5 @@ Keep Drizzle tables, client, and query helpers imported from `@workspace/db` so 
 Vercel's filesystem catch-all did not capture nested API paths in this mixed static/function deployment. Always smoke-test both one-level and nested endpoints on the public production alias.
 
 Vercel function tracing omitted pnpm workspace package sources even though typechecking resolved their symlinks. Explicitly include workspace source trees used by the serverless function.
+
+The `includeFiles` function option accepts one glob string. Combine multiple workspace source paths with brace expansion; an array makes the deployment configuration fail validation.

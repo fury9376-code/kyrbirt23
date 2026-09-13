@@ -24,14 +24,8 @@ export default async function handler(
     return app(request, response);
   } catch (error) {
     console.error("API initialization failed", error);
-    const message = error instanceof Error ? error.message : "Unknown error";
-    const safeMessage = message
-      .replace(/postgres(?:ql)?:\/\/[^\s]+/gi, "[redacted-database-url]")
-      .slice(0, 300);
     response.statusCode = 500;
     response.setHeader("Content-Type", "application/json");
-    return response.end(
-      JSON.stringify({ error: "API_INIT_FAILED", message: safeMessage }),
-    );
+    return response.end(JSON.stringify({ error: "API_INIT_FAILED" }));
   }
 }
