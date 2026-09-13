@@ -9,7 +9,10 @@ const FF = "'FranklinGothic', 'Arial Narrow', sans-serif";
 export function Hero() {
   const { days, hours, minutes, seconds, unlocked } = useDrops();
   const { settings } = useSiteSettings();
-  const mainBackground = resolveMediaUrl(settings.main_bg_image, "");
+  const mainBackground = resolveMediaUrl(
+    settings.main_bg_image || settings.drop_bg_image,
+    "",
+  );
 
   return (
     <section
