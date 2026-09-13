@@ -1,6 +1,5 @@
 import { Router } from "express";
-import { db, siteProductsTable } from "@workspace/db";
-import { eq, asc } from "drizzle-orm";
+import { asc, db, eq, siteProductsTable } from "@workspace/db";
 import { requireAdminAuth } from "./admin-auth.js";
 import type { ApiRequest, ApiResponse } from "../lib/http-types.js";
 

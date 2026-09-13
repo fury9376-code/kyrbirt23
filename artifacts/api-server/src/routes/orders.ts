@@ -1,7 +1,6 @@
 import { Router } from "express";
 import nodemailer from "nodemailer";
-import { db, ordersTable } from "@workspace/db";
-import { desc } from "drizzle-orm";
+import { db, desc, ordersTable } from "@workspace/db";
 import { requireAdminAuth } from "./admin-auth.js";
 import type { ApiRequest, ApiResponse } from "../lib/http-types.js";
 
@@ -24,13 +23,16 @@ async function sendWhatsApp(phone: string, message: string, logger: any): Promis
     type: "text",
     text: { body: message },
   };
-  const res = await fetch(`https://graph.facebook.com/v19.0/${phoneId}/messages`, {
+  const response = (await fetch(`https://graph.facebook.com/v19.0/${phoneId}/messages`, {
     method: "POST",
     headers: { Authorization: `Bearer ${token}`, "Content-Type": "application/json" },
     body: JSON.stringify(body),
-  });
-  if (!res.ok) {
-    const err = await res.text();
+  })) as unknown as {
+    ok: boolean;
+    text(): Promise<string>;
+  };
+  if (!response.ok) {
+    const err = await response.text();
     logger.error({ err }, "WhatsApp API error");
   } else {
     logger.info({ to: argPhone }, "WhatsApp message sent");
