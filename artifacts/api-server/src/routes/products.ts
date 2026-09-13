@@ -110,13 +110,14 @@ function legacyProductValues(product: any) {
 async function saveLegacyProduct(product: any) {
   const values = legacyProductValues(product);
   const { id: _id, ...updates } = values;
-  await db
-    .insert(siteProductsTable)
-    .values(values)
-    .onConflictDoUpdate({
-      target: siteProductsTable.id,
-      set: updates,
-    });
+  const updated = await db
+    .update(siteProductsTable)
+    .set(updates)
+    .where(eq(siteProductsTable.id, values.id))
+    .returning({ id: siteProductsTable.id });
+  if (updated.length === 0) {
+    await db.insert(siteProductsTable).values(values);
+  }
 
   const discountSettings = [
     {

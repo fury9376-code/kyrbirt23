@@ -38,11 +38,22 @@ type Tab = "orders" | "products" | "main" | "drop" | "maintenance" | "footer" | 
 
 let _sessionPassword = "";
 
-function adminFetch(path: string, opts?: RequestInit) {
-  return fetch(path, {
+async function adminFetch(path: string, opts?: RequestInit) {
+  const response = await fetch(path, {
     ...opts,
     headers: { "x-admin-password": _sessionPassword, "Content-Type": "application/json", ...(opts?.headers ?? {}) },
   });
+  if (!response.ok) {
+    let message = `Error del servidor (${response.status})`;
+    try {
+      const body = await response.clone().json() as { error?: string };
+      if (body.error) message = body.error;
+    } catch {
+      // Keep the status-based fallback when the response is not JSON.
+    }
+    throw new Error(message);
+  }
+  return response;
 }
 
 async function seedProductsIfEmpty(apiProducts: ApiProduct[]) {
