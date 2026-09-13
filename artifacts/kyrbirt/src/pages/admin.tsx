@@ -6,7 +6,7 @@ import { Textarea } from "@/components/ui/textarea";
 import {
   Lock, LogOut, RefreshCw, ArrowLeft, ShoppingBag, Clock, Wrench, AlignLeft,
   Plus, Trash2, Save, Eye, EyeOff, Package, ChevronDown, ChevronUp, X,
-  Phone, Ruler
+  Phone, Ruler, Image as ImageIcon
 } from "lucide-react";
 import { Link } from "wouter";
 import { type Product, type Colorway } from "@/data/products";
@@ -34,7 +34,7 @@ type ApiProduct = {
 };
 
 type Settings = Record<string, string>;
-type Tab = "orders" | "products" | "drop" | "maintenance" | "footer" | "fam" | "contacto" | "talles";
+type Tab = "orders" | "products" | "main" | "drop" | "maintenance" | "footer" | "fam" | "contacto" | "talles";
 
 let _sessionPassword = "";
 
@@ -636,6 +636,78 @@ function ProductsTab() {
   );
 }
 
+// ─── Tab: Main ────────────────────────────────────────────────────────────────
+function MainTab({ settings, onSaved }: { settings: Settings; onSaved: () => void }) {
+  const [backgroundUrl, setBackgroundUrl] = useState(settings.main_bg_image ?? "");
+  const [saving, setSaving] = useState(false);
+
+  useEffect(() => {
+    setBackgroundUrl(settings.main_bg_image ?? "");
+  }, [settings.main_bg_image]);
+
+  const save = async () => {
+    setSaving(true);
+    try {
+      await adminFetch("/api/admin/settings", {
+        method: "POST",
+        body: JSON.stringify({ key: "main_bg_image", value: backgroundUrl.trim() }),
+      });
+      onSaved();
+    } finally {
+      setSaving(false);
+    }
+  };
+
+  const previewUrl = resolveMediaUrl(backgroundUrl, "");
+
+  return (
+    <div className="space-y-6 max-w-2xl">
+      <div>
+        <h2 className="font-display text-2xl tracking-widest mb-2">FONDO DEL MAIN</h2>
+        <p className="text-sm text-muted-foreground">
+          Modificá la imagen que aparece detrás del título KYRBIRT. Si dejás el
+          campo vacío, se usará el fondo abstracto predeterminado.
+        </p>
+      </div>
+
+      <Field label="URL de la imagen de fondo">
+        <Input
+          className="rounded-none"
+          value={backgroundUrl}
+          onChange={(e) => setBackgroundUrl(e.target.value)}
+          placeholder="https://..."
+        />
+      </Field>
+
+      {previewUrl && (
+        <div className="border border-border bg-card p-3">
+          <p className="text-[10px] tracking-widest uppercase text-muted-foreground mb-3">
+            Vista previa
+          </p>
+          <img
+            src={previewUrl}
+            alt="Vista previa del fondo del main"
+            className="w-full aspect-video object-cover"
+          />
+        </div>
+      )}
+
+      <div className="flex gap-3">
+        <SaveBtn loading={saving} onClick={save} />
+        {backgroundUrl && (
+          <Button
+            variant="outline"
+            className="rounded-none"
+            onClick={() => setBackgroundUrl("")}
+          >
+            QUITAR IMAGEN
+          </Button>
+        )}
+      </div>
+    </div>
+  );
+}
+
 // ─── Tab: Drop / Timer ────────────────────────────────────────────────────────
 function DropTab({ settings, onSaved }: { settings: Settings; onSaved: () => void }) {
   const [form, setForm] = useState({
@@ -1077,6 +1149,7 @@ function SizeGuideTab({ settings, onSaved }: { settings: Settings; onSaved: () =
 const TABS: { id: Tab; label: string; icon: React.ReactNode }[] = [
   { id: "orders", label: "ÓRDENES", icon: <ShoppingBag size={14} /> },
   { id: "products", label: "PRODUCTOS", icon: <Package size={14} /> },
+  { id: "main", label: "MAIN", icon: <ImageIcon size={14} /> },
   { id: "drop", label: "DROP/TIMER", icon: <Clock size={14} /> },
   { id: "fam", label: "FAM", icon: <AlignLeft size={14} /> },
   { id: "contacto", label: "CONTACTO", icon: <Phone size={14} /> },
@@ -1194,6 +1267,7 @@ export default function Admin() {
               <div>
                 {activeTab === "orders" && <OrdersTab />}
                 {activeTab === "products" && <ProductsTab />}
+                {activeTab === "main" && <MainTab settings={settings} onSaved={fetchSettings} />}
                 {activeTab === "drop" && <DropTab settings={settings} onSaved={fetchSettings} />}
                 {activeTab === "fam" && <FamTab settings={settings} onSaved={fetchSettings} />}
                 {activeTab === "contacto" && <ContactoTab settings={settings} onSaved={fetchSettings} />}

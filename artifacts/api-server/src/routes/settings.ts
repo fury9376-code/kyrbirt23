@@ -18,6 +18,7 @@ const SIZE_GUIDE_DEFAULT = JSON.stringify([
 ]);
 
 const DEFAULTS: Record<string, string> = {
+  main_bg_image: "",
   drop_name: "DROP 5",
   drop_target_date: "2026-05-08T23:00:00.000Z",
   drop_bg_image: "",
@@ -43,6 +44,9 @@ function normalizeSettingValue(key: string, value: unknown): string {
 }
 
 function replaceBlockedMedia(settings: Record<string, string>) {
+  if (settings.main_bg_image.startsWith(BLOCKED_CLOUDINARY_PREFIX)) {
+    settings.main_bg_image = "";
+  }
   if (settings.drop_bg_image.startsWith(BLOCKED_CLOUDINARY_PREFIX)) {
     settings.drop_bg_image = "";
   }

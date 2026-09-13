@@ -2,6 +2,7 @@ import { useQuery } from "@tanstack/react-query";
 import { FAM_FALLBACK_URL } from "@/lib/assets";
 
 export type SiteSettings = {
+  main_bg_image: string;
   drop_name: string;
   drop_target_date: string;
   drop_bg_image: string;
@@ -22,6 +23,7 @@ export type SiteSettings = {
 };
 
 const DEFAULTS: SiteSettings = {
+  main_bg_image: "",
   drop_name: "DROP 5",
   drop_target_date: "2026-05-08T23:00:00.000Z",
   drop_bg_image: "",

@@ -2,12 +2,14 @@ import { motion } from "framer-motion";
 import { Link } from "wouter";
 import { useDrops } from "@/hooks/use-drops";
 import { useSiteSettings } from "@/hooks/use-site-settings";
+import { resolveMediaUrl } from "@/lib/assets";
 
 const FF = "'FranklinGothic', 'Arial Narrow', sans-serif";
 
 export function Hero() {
   const { days, hours, minutes, seconds, unlocked } = useDrops();
   const { settings } = useSiteSettings();
+  const mainBackground = resolveMediaUrl(settings.main_bg_image, "");
 
   return (
     <section
@@ -20,8 +22,11 @@ export function Hero() {
       <div
         className="absolute inset-[24px] z-0 overflow-hidden bg-[#0b0b0b]"
         style={{
-          backgroundImage:
-            "radial-gradient(circle at 20% 30%, rgba(255,255,255,.09), transparent 32%), radial-gradient(circle at 78% 68%, rgba(255,255,255,.06), transparent 28%), linear-gradient(135deg, #151515 0%, #050505 52%, #111 100%)",
+          backgroundImage: mainBackground
+            ? `linear-gradient(rgba(0,0,0,.25), rgba(0,0,0,.25)), url("${mainBackground}")`
+            : "radial-gradient(circle at 20% 30%, rgba(255,255,255,.09), transparent 32%), radial-gradient(circle at 78% 68%, rgba(255,255,255,.06), transparent 28%), linear-gradient(135deg, #151515 0%, #050505 52%, #111 100%)",
+          backgroundSize: "cover",
+          backgroundPosition: "center",
         }}
       >
         <div className="absolute inset-0 opacity-20 bg-[linear-gradient(90deg,transparent_49.5%,rgba(255,255,255,.12)_50%,transparent_50.5%)] bg-[length:22%_100%]" />
