@@ -6,12 +6,7 @@
   "outputDirectory": "artifacts/kyrbirt/dist",
   "functions": {
     "api/index.ts": {
-      "includeFiles": [
-        "lib/api-zod/package.json",
-        "lib/api-zod/src/**",
-        "lib/db/package.json",
-        "lib/db/src/**"
-      ]
+      "includeFiles": "{lib/api-zod/package.json,lib/api-zod/src/**,lib/db/package.json,lib/db/src/**}"
     }
   },
   "rewrites": [
